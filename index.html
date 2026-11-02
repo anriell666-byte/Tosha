@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#fff7ec">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Тоша</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#fff7ec;--card:#fff;--ink:#3b2f2f;--muted:#85766e;--accent:#d94f30;--accent-ink:#fff;
+  --teal:#1f8f82;--pet:#ffb86b;--pet-light:#ffe6c2;--line:#f1e2cf;--soft:#fff0dc;
+  --shadow:0 2px 0 rgba(120,80,40,.05),0 10px 26px rgba(120,80,40,.08)
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1d1818;--card:#292121;--ink:#f7ece1;--muted:#b6a59b;--accent:#ff8765;--accent-ink:#2a1410;
+    --teal:#46c2b3;--line:#3b302e;--soft:#342827;--shadow:none}
+}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+main{max-width:520px;margin:0 auto;padding:14px 14px 0}
+.tab{display:none}.tab.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:16px;margin:0 0 12px;box-shadow:var(--shadow)}
+.card.tip{background:var(--soft);box-shadow:none}
+h3{margin:0 0 10px;font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+p{margin:0 0 8px}
+.muted{color:var(--muted)}.small{font-size:.85rem}.center{text-align:center}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}.row>.fit{flex:0 0 auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid2 .card{margin:0}
+.grid2+.card,.grid2{margin-bottom:12px}
+
+/* кнопки и поля */
+.btn{appearance:none;border:0;border-radius:16px;background:var(--accent);color:var(--accent-ink);
+  font:inherit;font-weight:700;padding:12px 16px;cursor:pointer;min-height:46px}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:8px 12px;min-height:38px;font-size:.9rem;flex:0 0 auto}
+.btn.round{width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;font-size:1.3rem;flex:0 0 auto}
+.in,select.in{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);
+  border-radius:14px;padding:11px 12px;min-height:46px}
+.in.sm{width:auto;min-width:110px;text-align:right}
+.in:focus,.btn:focus-visible,.chip:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{appearance:none;border:1.5px solid var(--line);background:transparent;color:var(--ink);font:inherit;
+  font-size:.92rem;border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.pill{display:inline-block;background:var(--soft);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:700}
+
+/* питомец */
+.pet{text-align:center;padding-top:18px}
+.bubble{position:relative;display:inline-block;max-width:92%;background:var(--soft);border-radius:18px;padding:10px 14px;
+  font-size:.95rem;margin-bottom:14px}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;
+  border-bottom:0;border-top-color:var(--soft)}
+.petwrap{width:190px;margin:26px auto 0}
+.petwrap[data-act]{cursor:pointer}
+.petwrap svg{width:100%;height:auto;display:block;animation:bob 3.6s ease-in-out infinite;transform-origin:50% 95%}
+.petwrap.cheer svg{animation:hop .6s ease-in-out 3}
+@keyframes bob{0%,100%{transform:translateY(0) scale(1,1)}50%{transform:translateY(-4px) scale(1.015,.99)}}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-22px) rotate(-3deg)}70%{transform:translateY(0) scale(1.04,.94)}}
+.petname{font-weight:800;font-size:1.1rem;margin-top:6px}
+.xpbar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:8px auto 4px;max-width:280px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--pet));border-radius:999px;transition:width .5s}
+
+/* анимация частей питомца: классы a-* заданы в pets.js */
+.pet-svg{overflow:visible}
+.a-eyes{animation:blink 5.5s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+.m-sleepy .a-eyes,.m-happy .a-eyes{animation:none}
+.a-breathe{animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.02)}}
+.m-sleepy .a-breathe{animation-duration:6s}.m-hungry .a-breathe{animation-duration:1.8s}
+.a-tail{animation:wag 2.8s ease-in-out infinite}
+@keyframes wag{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(9deg)}}
+.m-excited .a-tail{animation-duration:.55s}.m-sleepy .a-tail{animation-duration:7s}
+.a-ear-l{animation:twitchL 7s ease-in-out infinite}
+.a-ear-r{animation:twitchR 8.5s ease-in-out infinite 1.5s}
+@keyframes twitchL{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-8deg)}94%{transform:rotate(2deg)}}
+@keyframes twitchR{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(8deg)}94%{transform:rotate(-2deg)}}
+.a-sway{animation:sway 3.2s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+.a-wing-l{animation:flapL 2.6s ease-in-out infinite}.a-wing-r{animation:flapR 2.6s ease-in-out infinite}
+@keyframes flapL{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg)}}
+@keyframes flapR{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+.m-excited .a-wing-l,.m-excited .a-wing-r{animation-duration:.45s}
+.m-sleepy .a-wing-l,.m-sleepy .a-wing-r{animation-duration:7s}
+.m-excited .a-arm-l{animation:armL .45s ease-in-out infinite alternate}
+.m-excited .a-arm-r{animation:armR .45s ease-in-out infinite alternate .1s}
+.m-happy .a-arm-r{animation:armR 1.2s ease-in-out infinite alternate}
+@keyframes armL{to{transform:rotate(-24deg)}}@keyframes armR{to{transform:rotate(24deg)}}
+.a-z{animation:zfloat 3.4s ease-in infinite}.a-z.d2{animation-delay:1.4s}
+@keyframes zfloat{0%{opacity:0;transform:translate(0,8px)}30%{opacity:1}100%{opacity:0;transform:translate(8px,-14px)}}
+.a-sparkle{animation:twinkle .8s ease-in-out infinite alternate}.a-sparkle.d2{animation-delay:.4s}
+@keyframes twinkle{from{opacity:.3;transform:translateY(2px)}to{opacity:1;transform:translateY(-3px)}}
+.mini *{animation:none!important}
+
+/* мастерская */
+.stage{width:210px;margin:30px auto 6px}.stage svg{width:100%;height:auto;display:block}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=color]{width:56px;height:42px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:3px;cursor:pointer}
+textarea.in{min-height:100px;resize:vertical;font:inherit}
+/* выбор питомца */
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pick{appearance:none;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:18px;padding:6px 4px 8px;
+  font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;text-align:center}
+.pick svg{width:100%;max-width:84px;height:auto;display:block;margin:0 auto 2px}
+.pick.on{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+
+/* задание */
+.qhead{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.qbody{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.qemoji{font-size:2.4rem;width:64px;height:64px;border-radius:20px;background:var(--soft);display:grid;place-items:center;flex:0 0 auto}
+.qtext{font-weight:700;font-size:1.05rem;line-height:1.3}
+.glow{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent),var(--shadow)}
+
+/* кольца и вода */
+.ring{display:block;margin:0 auto}.ringtxt{font-weight:800;font-size:15px;fill:var(--ink)}
+.ringsub{font-size:11px;font-weight:600;fill:var(--muted)}
+.big .ringtxt{font-size:30px}.big .ringsub{font-size:13px}
+.stat{text-align:center}.stat b{display:block;font-size:1.05rem}
+.drops{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:8px 0 12px;min-height:22px}
+.drops i{font-style:normal;font-size:1rem;opacity:.25}.drops i.on{opacity:1}
+.week{display:flex;justify-content:space-between;gap:4px;margin-top:10px}
+.week div{text-align:center;font-size:.72rem;color:var(--muted);flex:1}
+.week span{display:grid;place-items:center;width:30px;height:30px;margin:0 auto 4px;border-radius:50%;background:var(--line);font-size:.9rem}
+.week .ok span{background:var(--teal);color:#fff}
+.week .today span{outline:2px solid var(--accent);outline-offset:2px}
+
+/* еда */
+.entry{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.entry:last-child{border-bottom:0}
+.entry .t{font-size:.8rem;color:var(--muted);width:46px;flex:0 0 auto}
+.entry .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry .k{font-weight:800}
+.x{appearance:none;border:0;background:transparent;color:var(--muted);font-size:1.4rem;line-height:1;padding:6px 10px;cursor:pointer;flex:0 0 auto}
+details summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:4px 0}
+
+/* значки */
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{text-align:center;font-size:.75rem;padding:10px 4px;border-radius:16px;background:var(--soft)}
+.badge i{display:block;font-style:normal;font-size:1.7rem;margin-bottom:2px}
+.badge.lock{opacity:.45;filter:grayscale(1)}
+
+/* настройки */
+.srow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+.srow:last-of-type{border-bottom:0}
+.srow label.l{flex:1}
+.sw{position:relative;width:52px;height:30px;flex:0 0 auto}
+.sw input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:999px;background:var(--line);transition:.2s;pointer-events:none}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw input:checked+span{background:var(--teal)}
+.sw input:checked+span::after{transform:translateX(22px)}
+.sw input:focus-visible+span{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+
+/* баннер-подсказка */
+#nudge{position:sticky;top:8px;z-index:20;display:flex;gap:8px;align-items:center;background:var(--ink);color:var(--bg);
+  border-radius:20px;padding:12px 8px 12px 16px;margin-bottom:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:fade .3s}
+#nudge[hidden]{display:none}
+#nudge>div:first-child{flex:1;font-size:.92rem}#nudge .x{color:var(--bg)}
+#nudge .btn{background:var(--bg);color:var(--ink)}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;
+  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;font-size:.92rem;z-index:50;
+  pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* нижнее меню */
+.tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:6px;z-index:30;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+.tabbar button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.75rem;font-weight:700;
+  flex:1;max-width:160px;padding:6px 4px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabbar button i{font-style:normal;font-size:1.4rem;line-height:1.2}
+.tabbar button.on{background:var(--soft);color:var(--ink)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<main>
+  <!-- ГЛАВНАЯ -->
+  <section id="tab-home" class="tab active">
+    <div id="nudge" hidden></div>
+    <div class="card pet" id="petBox"></div>
+    <div class="card tip" id="pickHome" hidden><b>Выбери питомца</b>
+      <p class="muted small">Сменить можно в любой момент в «Ещё»: уровень и XP сохранятся.</p>
+      <div class="picker" id="pickHomeGrid"></div></div>
+    <div id="permBox"></div>
+    <div class="card" id="questBox"></div>
+    <div class="grid2">
+      <div class="card" id="foodMini"></div>
+      <div class="card" id="waterBox"></div>
+    </div>
+    <div class="card" id="weekBox"></div>
+  </section>
+
+  <!-- ЕДА -->
+  <section id="tab-food" class="tab">
+    <div class="card big" id="foodRing"></div>
+    <form class="card" id="foodForm" autocomplete="off">
+      <h3>Что съел(а)?</h3>
+      <div class="chips" id="mealChips"></div>
+      <div style="margin-bottom:8px"><input class="in" id="fName" placeholder="Что именно (необязательно)" maxlength="40"></div>
+      <div class="row">
+        <input class="in" id="fKcal" type="number" inputmode="numeric" min="1" max="5000" placeholder="Ккал" required>
+        <button class="btn fit" type="submit">Записать</button>
+      </div>
+      <div class="chips" id="kcalChips"></div>
+      <details>
+        <summary>Примерные ориентиры порций</summary>
+        <div class="chips" id="refChips"></div>
+        <p class="muted small">Значения приблизительные: у разных продуктов и порций они отличаются. Для заботы о себе точность до калории не нужна.</p>
+      </details>
+      <div id="recent"></div>
+    </form>
+    <div class="card"><h3>Сегодня</h3><div id="entries"></div></div>
+  </section>
+
+  <!-- МАСТЕРСКАЯ -->
+  <section id="tab-ws" class="tab">
+    <div class="card">
+      <h3>Анимации питомцев</h3>
+      <div class="chips" id="wsSpecies"></div>
+      <div class="stage" id="wsStage"></div>
+      <p class="center muted small" id="wsDesc" style="min-height:2.6em"></p>
+      <div class="srow"><label class="l" for="wsSpeed">Скорость <b id="wsSpeedV">1,0×</b></label>
+        <input type="range" id="wsSpeed" min="0.5" max="1.5" step="0.1" value="1" style="max-width:55%"></div>
+      <div class="srow"><label class="l" for="wsLoop">Повторять по кругу</label>
+        <label class="sw"><input type="checkbox" id="wsLoop"><span></span></label></div>
+      <button class="btn" data-act="wsPlay" type="button" style="width:100%;margin-top:6px">▶ Показать ещё раз</button>
+      <div id="wsList"></div>
+    </div>
+    <div class="card">
+      <h3>Цвета питомца</h3>
+      <p class="muted small">Для питомца, выбранного выше. Контур подберётся сам.</p>
+      <div class="srow"><label class="l" for="colPet">Основной цвет</label><input type="color" id="colPet"></div>
+      <div class="srow"><label class="l" for="colLight">Цвет животика</label><input type="color" id="colLight"></div>
+      <button class="btn ghost" data-act="colReset" type="button" style="width:100%;margin-top:6px">Вернуть исходные цвета</button>
+    </div>
+    <div class="card">
+      <h3>Свои мини-задания</h3>
+      <div id="cqList"></div>
+      <form id="cqForm" autocomplete="off" style="margin-top:10px">
+        <div class="row" style="margin-bottom:8px"><input class="in fit" id="cqEmoji" placeholder="🙂" maxlength="4" style="width:64px;text-align:center" aria-label="Значок"><input class="in" id="cqText" placeholder="Например: 10 приседаний у окна" maxlength="60" aria-label="Что сделать"></div>
+        <div class="row"><select class="in" id="cqDur" aria-label="Сколько времени"><option>1 мин</option><option>2 мин</option><option selected>5 мин</option><option>10 мин</option></select>
+          <select class="in" id="cqXp" aria-label="Награда"><option value="5">+5 XP</option><option value="10" selected>+10 XP</option><option value="15">+15 XP</option><option value="20">+20 XP</option></select>
+          <button class="btn fit" type="submit">Добавить</button></div>
+      </form>
+    </div>
+    <div class="card">
+      <h3>Свои фразы питомца</h3>
+      <p class="muted small">По одной в строке. Питомец будет говорить их в спокойные и радостные дни.</p>
+      <textarea class="in" id="cpText" maxlength="2400" placeholder="Например: Ты сегодня хорошо справляешься" aria-label="Свои фразы"></textarea>
+    </div>
+  </section>
+
+  <!-- ЕЩЁ -->
+  <section id="tab-more" class="tab">
+    <div class="card"><h3>Питомец</h3><div class="picker" id="pickMore"></div></div>
+    <div class="card"><h3>Значки</h3><div class="badges" id="badges"></div></div>
+
+    <div class="card">
+      <h3>Напоминания</h3>
+      <div class="srow"><div class="l"><b>Уведомления</b><div class="muted small" id="permStatus"></div></div>
+        <label class="sw"><input type="checkbox" data-s="notify" data-t="bool" aria-label="Уведомления"><span></span></label></div>
+      <div class="srow"><label class="l">О еде</label>
+        <label class="sw"><input type="checkbox" data-s="remindMeals" data-t="bool"><span></span></label></div>
+      <div class="srow"><label class="l">Мини-задания на движение</label>
+        <label class="sw"><input type="checkbox" data-s="remindMove" data-t="bool"><span></span></label></div>
+      <div class="srow"><label class="l">Итог дня вечером</label>
+        <label class="sw"><input type="checkbox" data-s="remindSummary" data-t="bool"><span></span></label></div>
+      <div class="srow"><label class="l">Без звука и вибрации</label>
+        <label class="sw"><input type="checkbox" data-s="silent" data-t="bool"><span></span></label></div>
+      <div class="srow"><label class="l" for="sMoveEvery">Задание не чаще, чем раз в</label>
+        <select class="in sm" id="sMoveEvery" data-s="moveEveryMin" data-t="sel">
+          <option value="60">1 час</option><option value="90">1,5 часа</option><option value="120">2 часа</option>
+          <option value="180">3 часа</option><option value="240">4 часа</option></select></div>
+      <div class="srow"><label class="l" for="sMaxMove">Заданий в день не больше</label>
+        <select class="in sm" id="sMaxMove" data-s="maxMovePerDay" data-t="sel">
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="srow"><label class="l" for="sQs">Тихие часы: с</label>
+        <input class="in sm" id="sQs" type="time" data-s="quietStart" data-t="time"></div>
+      <div class="srow"><label class="l" for="sQe">до</label>
+        <input class="in sm" id="sQe" type="time" data-s="quietEnd" data-t="time"></div>
+      <div class="srow"><label class="l" for="tB">Завтрак</label><input class="in sm" id="tB" type="time" data-meal="b"></div>
+      <div class="srow"><label class="l" for="tL">Обед</label><input class="in sm" id="tL" type="time" data-meal="l"></div>
+      <div class="srow"><label class="l" for="tD">Ужин</label><input class="in sm" id="tD" type="time" data-meal="d"></div>
+      <div class="srow"><label class="l" for="sSum">Итог дня в</label>
+        <input class="in sm" id="sSum" type="time" data-s="summaryTime" data-t="time"></div>
+      <div style="margin-top:10px"><button class="btn ghost" data-act="testNotif" type="button" style="width:100%">Проверить уведомление</button></div>
+      <p class="muted small" style="margin-top:10px">Если приложение давно не открывали, Android может задержать напоминание. Загляни к Тоше утром — он подстроится под день.</p>
+    </div>
+
+    <div class="card">
+      <h3>Мои цели</h3>
+      <div class="srow"><label class="l" for="sPet">Имя питомца</label>
+        <input class="in sm" id="sPet" data-s="petName" data-t="text" maxlength="16"></div>
+      <div class="srow"><label class="l" for="sGoal">Ккал в день</label>
+        <input class="in sm" id="sGoal" type="number" inputmode="numeric" data-s="goal" data-t="num" data-min="800" data-max="6000"></div>
+      <div class="srow"><label class="l" for="sWater">Стаканов воды</label>
+        <input class="in sm" id="sWater" type="number" inputmode="numeric" data-s="waterGoal" data-t="num" data-min="1" data-max="15"></div>
+      <p class="muted small" style="margin-top:8px">Это не медицинская рекомендация. Если нужна цель по питанию — её лучше обсудить с врачом или диетологом.</p>
+    </div>
+
+    <div class="card">
+      <h3>Мои данные</h3>
+      <p class="muted small">Всё хранится только на этом телефоне. Ни аккаунтов, ни серверов.</p>
+      <div class="row">
+        <button class="btn ghost" data-act="export" type="button">Сохранить копию</button>
+        <button class="btn ghost" data-act="import" type="button">Загрузить копию</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json" hidden>
+      <div style="margin-top:8px"><button class="btn ghost" data-act="reset" type="button" style="width:100%">Начать с нуля</button></div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Разделы">
+  <button class="on" data-tab="home"><i>🐾</i>Тоша</button>
+  <button data-tab="food"><i>🍽</i>Еда</button>
+  <button data-tab="ws"><i>🎨</i>Мастерская</button>
+  <button data-tab="more"><i>⚙️</i>Ещё</button>
+</nav>
+
+<script src="core.js"></script>
+<script src="pets.js"></script>
+<script src="anim.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
