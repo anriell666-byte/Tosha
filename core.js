@@ -293,6 +293,47 @@
     };
   }
 
+
+  /* ---------- План напоминаний наперёд (для Android-приложения: уведомления ставятся в будильник телефона) ---------- */
+  function planSchedule(ctx, now, days) {
+    const s = ctx.settings, out = [];
+    if (!s || !s.notify) return out;
+    days = days || 3;
+    const pet = s.petName || 'Тоша', nowMs = now.getTime(), todayKey = dayKey(now);
+    const atMin = (d0, min) => new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), Math.floor(min / 60), min % 60, 0, 0);
+    for (let off = 0; off < days; off++) {
+      const d0 = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off, 12), key = dayKey(d0);
+      const slots = [];
+      const add = (min, o) => {
+        const at = atMin(d0, min);
+        if (at.getTime() <= nowMs + 20000 || isQuiet(min, s.quietStart, s.quietEnd)) return false;
+        slots.push(Object.assign({ at: at.getTime(), min }, o)); return true;
+      };
+      if (s.remindMeals) s.meals.forEach(m => {
+        if (off === 0 && ctx.mealsLogged && ctx.mealsLogged[m.id]) return;
+        add(toMin(m.time), { kind: 'meal', mealId: m.id, title: pet + ' напоминает 🍽', body: pick(MEAL_BODIES, 'meal:' + m.id + ':' + key).replace('{m}', m.name.toLowerCase()) });
+      });
+      if (s.remindSummary) add(toMin(s.summaryTime), { kind: 'summary', title: 'Итог дня 🌙', body: 'Загляни, ' + pet + ' хочет пожелать спокойной ночи. Записей может и не быть: без обид.' });
+      if (s.remindMove) {
+        let start = toMin(s.quietEnd) + 60;
+        if (toMin(s.quietStart) <= toMin(s.quietEnd)) start = Math.max(start, 9 * 60);
+        const used = slots.map(x => x.min);
+        for (let i = 0, n = 0; n < s.maxMovePerDay && i < 12; i++) {
+          const min = start + i * s.moveEveryMin;
+          if (min >= 1440) break;
+          if (used.some(u => Math.abs(u - min) < 45)) continue;
+          const q = pickQuest(key, n, null, ctx.quests);
+          n++;
+          if (add(min, { kind: 'move', questId: q.id, title: 'Мини-задание от ' + pet, body: q.emoji + ' ' + q.text + ' · ' + q.dur })) used.push(min);
+        }
+      }
+      slots.forEach(x => out.push(x));
+    }
+    out.sort((a, b) => a.at - b.at);
+    out.forEach((x, i) => { x.id = i + 1; });
+    return out;
+  }
+
   /* ---------- IndexedDB (снимок состояния для service worker) ---------- */
   function idb() {
     return new Promise((res, rej) => {
@@ -321,7 +362,7 @@
   const api = {
     dayKey, toMin, minutesOf, isQuiet, hash, pick, QUESTS, questById, pickQuest, defaultSettings,
     level, xpForLevel, qualifies, prevKey, streak, bestStreak, ACH, ACH_GROUPS, computeStats, evalAch,
-    buildCtx, computeDue, markFired, pruneFired, notifOptions, idbGet, idbSet
+    buildCtx, computeDue, markFired, pruneFired, notifOptions, planSchedule, idbGet, idbSet
   };
   root.ToshaCore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

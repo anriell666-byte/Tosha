@@ -36,9 +36,44 @@
   let S = load();
   let reg = null, mealSel = autoMeal(new Date()), deferredInstall = null, recent = [];
 
+  /* ---------- Android-приложение (Capacitor): настоящие запланированные уведомления ---------- */
+  const CAP = window.Capacitor, NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
+  const plug = n => (CAP && CAP.Plugins && CAP.Plugins[n]) || null;
+  let nativePerm = 'prompt', schedT = null;
+  async function nativeCheck() {
+    const LN = plug('LocalNotifications'); if (!LN) return;
+    try { nativePerm = (await LN.checkPermissions()).display; } catch (e) { /* нет плагина */ }
+  }
+  async function nativeAsk() {
+    const LN = plug('LocalNotifications'); if (!LN) return;
+    try { nativePerm = (await LN.requestPermissions()).display; } catch (e) { /* ок */ }
+    renderPerm(); reschedule();
+  }
+  function reschedule() {
+    if (!NATIVE) return;
+    clearTimeout(schedT); schedT = setTimeout(doSchedule, 1200);
+  }
+  async function doSchedule() {
+    const LN = plug('LocalNotifications'); if (!LN) return;
+    try {
+      const pend = await LN.getPending();
+      if (pend.notifications && pend.notifications.length) await LN.cancel({ notifications: pend.notifications.map(n => ({ id: n.id })) });
+      await nativeCheck();
+      if (nativePerm !== 'granted' || !S.settings.notify) return;
+      await LN.createChannel({ id: 'tosha-quiet', name: 'Тихие напоминания', importance: 2, vibration: false, visibility: 1 });
+      await LN.createChannel({ id: 'tosha-sound', name: 'Напоминания со звуком', importance: 3, vibration: true, visibility: 1 });
+      const now = new Date(), plan = C.planSchedule(C.buildCtx(S, now), now, 3);
+      if (!plan.length) return;
+      await LN.schedule({ notifications: plan.map(p => ({
+        id: p.id, title: p.title, body: p.body, schedule: { at: new Date(p.at), allowWhileIdle: true },
+        channelId: S.settings.silent ? 'tosha-quiet' : 'tosha-sound', extra: { kind: p.kind, mealId: p.mealId || '', questId: p.questId || '' }
+      })) });
+    } catch (e) { console.warn('Планирование уведомлений:', e); }
+  }
+
   function persist() {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn(e); }
-    mirror();
+    mirror(); reschedule();
   }
   function save() { persist(); checkAch(); }
   function mirror() {
@@ -269,8 +304,9 @@
   function setTheme(k, v) { S.settings[k] = v; S.flags.theme = true; applyTheme(); renderThemeUi(); save(); }
 
   /* ---------- Уведомления ---------- */
-  const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const standalone = () => NATIVE || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   function permText() {
+    if (NATIVE) return nativePerm === 'granted' ? 'Разрешены ✓' : nativePerm === 'denied' ? 'Запрещены в настройках телефона' : 'Ещё не разрешены';
     if (!('Notification' in window)) return 'Не поддерживаются, напоминания покажутся внутри приложения';
     const p = Notification.permission;
     return p === 'granted' ? 'Разрешены ✓' : p === 'denied' ? 'Запрещены в настройках телефона' : 'Ещё не разрешены';
@@ -282,7 +318,14 @@
         <p class="muted small">Так он открывается как обычное приложение и надёжнее присылает напоминания.</p>
         ${deferredInstall ? '<button class="btn" data-act="install">Установить</button>' : '<p class="small">Меню браузера ⋮ → «Установить приложение» или «Добавить на главный экран».</p>'}</div>`;
     }
-    if ('Notification' in window && S.settings.notify) {
+    if (NATIVE && S.settings.notify) {
+      if (nativePerm === 'prompt' || nativePerm === 'prompt-with-rationale') {
+        h += `<div class="card tip"><b>Тихие напоминания</b><p class="muted small">Тоша напомнит о еде и разминке без звука и не чаще нескольких раз в день. Разрешить уведомления?</p>
+          <button class="btn" data-act="askPerm">Разрешить</button></div>`;
+      } else if (nativePerm === 'denied') {
+        h += `<div class="card tip"><p class="small" style="margin:0">Уведомления выключены в настройках телефона (Настройки → Приложения → Тоша → Уведомления).</p></div>`;
+      }
+    } else if ('Notification' in window && S.settings.notify) {
       if (Notification.permission === 'default') {
         h += `<div class="card tip"><b>Тихие напоминания</b><p class="muted small">Тоша напомнит о еде и разминке без звука и не чаще нескольких раз в день. Разрешить уведомления?</p>
           <button class="btn" data-act="askPerm">Разрешить</button></div>`;
@@ -294,6 +337,7 @@
     $('#permStatus').textContent = permText();
   }
   async function askPerm() {
+    if (NATIVE) { await nativeAsk(); if (nativePerm === 'granted') toast('Готово! Тоша будет напоминать тихо'); return; }
     if (!('Notification' in window)) return;
     const p = await Notification.requestPermission();
     if (p === 'granted') { toast('Готово! Тоша будет напоминать тихо'); registerPeriodic(); }
@@ -401,6 +445,16 @@
     delEntry(t) { const d = day(); d.meals = d.meals.filter(m => m.id !== t.dataset.id); save(); renderAll(); toast('Запись удалена'); },
     askPerm,
     async testNotif() {
+      if (NATIVE) {
+        if (nativePerm !== 'granted') await nativeAsk();
+        const LN = plug('LocalNotifications');
+        if (nativePerm === 'granted' && LN) {
+          try { await LN.createChannel({ id: 'tosha-quiet', name: 'Тихие напоминания', importance: 2, vibration: false, visibility: 1 }); } catch (e) { /* ок */ }
+          await LN.schedule({ notifications: [{ id: 9999, title: S.settings.petName + ' на связи 🐾', body: 'Так выглядят тихие напоминания.', schedule: { at: new Date(Date.now() + 3000), allowWhileIdle: true }, channelId: 'tosha-quiet', extra: { kind: 'test' } }] });
+          toast('Отправлю через 3 секунды, сверни приложение');
+        }
+        return;
+      }
       if (!('Notification' in window)) { toast('Этот браузер не поддерживает уведомления'); return; }
       if (Notification.permission !== 'granted') await askPerm();
       if (Notification.permission === 'granted') {
@@ -416,8 +470,16 @@
       if (t.dataset.glow) { const q = $('#questBox'); q.classList.add('glow'); setTimeout(() => q.classList.remove('glow'), 3500); }
     },
     nudgeClose() { $('#nudge').hidden = true; },
-    export() {
+    async export() {
       S.flags.backup = true; save();
+      if (NATIVE && plug('Filesystem') && plug('Share')) {
+        try {
+          const name = 'tosha-backup-' + todayKey() + '.json';
+          const w = await plug('Filesystem').writeFile({ path: name, data: JSON.stringify(S, null, 1), directory: 'CACHE', encoding: 'utf8' });
+          await plug('Share').share({ title: 'Копия Тоши', url: w.uri, dialogTitle: 'Сохранить копию' });
+        } catch (e) { toast('Не получилось поделиться файлом'); }
+        return;
+      }
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
       a.download = 'tosha-backup-' + todayKey() + '.json'; a.click();
@@ -532,6 +594,7 @@
     syncFromIdb().then(renderAll);
   }
   async function initSW() {
+    if (NATIVE) { nativeCheck().then(() => { renderPerm(); reschedule(); }); return; }
     if (!('serviceWorker' in navigator)) return;
     try {
       await navigator.serviceWorker.register('sw.js');
@@ -539,6 +602,9 @@
       navigator.serviceWorker.addEventListener('message', ev => { if (ev.data && ev.data.type === 'nav') navTo(ev.data); });
       registerPeriodic(); mirror();
     } catch (e) { console.warn('Service worker недоступен (нужен https):', e); }
+  }
+  if (NATIVE && plug('LocalNotifications')) {
+    plug('LocalNotifications').addListener('localNotificationActionPerformed', ev => { const x = ev.notification && ev.notification.extra; if (x && x.kind && x.kind !== 'test') navTo(x); });
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; renderPerm(); });
   window.addEventListener('appinstalled', () => { deferredInstall = null; renderPerm(); });
