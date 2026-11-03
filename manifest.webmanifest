@@ -96,6 +96,13 @@
   ],
   "screenshots": [
     {
+      "src": "shot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Питомец и мини-задание"
+    },
+    {
       "src": "shot-1.png",
       "sizes": "720x1280",
       "type": "image/png",
