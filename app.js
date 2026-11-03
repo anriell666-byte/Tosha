@@ -12,14 +12,22 @@
 
   /* ---------- Состояние ---------- */
   function fresh() {
-    return { v: 1, pet: 'blob', petChosen: false, xp: 0, days: {}, fired: {}, notifLog: {}, lastMoveAt: Date.now(), current: null, reroll: 0, custom: { quests: [], phrases: [], colors: {} }, settings: C.defaultSettings() };
+    return { v: 1, pet: 'hamster', petChosen: false, petsTried: ['hamster'], flags: { taps: 0 }, ach: {}, xp: 0, days: {}, fired: {}, notifLog: {}, lastMoveAt: Date.now(), current: null, reroll: 0, custom: { quests: [], phrases: [], colors: {} }, settings: C.defaultSettings() };
   }
   function migrate(o) {
     const base = fresh(), def = C.defaultSettings();
     const s = Object.assign(def, o.settings || {});
     if (!Array.isArray(s.meals) || !s.meals.length) s.meals = C.defaultSettings().meals;
     const cu = Object.assign({ quests: [], phrases: [], colors: {} }, o.custom || {});
-    return Object.assign(base, o, { settings: s, custom: cu });
+    const r = Object.assign(base, o, { settings: s, custom: cu });
+    const SP = (window.ToshaPets && window.ToshaPets.SPECIES) || {};
+    if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком
+    if (!SP[r.pet]) r.pet = 'hamster';
+    if (cu.colors && cu.colors.blob) { cu.colors.hamster = cu.colors.blob; delete cu.colors.blob; }
+    r.flags = Object.assign({ taps: 0 }, o.flags || {});
+    r.ach = o.ach || {};
+    r.petsTried = Array.from(new Set((o.petsTried || []).map(x => x === 'blob' ? 'hamster' : x).concat([r.pet])));
+    return r;
   }
   function load() {
     try { const raw = localStorage.getItem(KEY); if (raw) return migrate(JSON.parse(raw)); } catch (e) { console.warn(e); }
@@ -28,10 +36,11 @@
   let S = load();
   let reg = null, mealSel = autoMeal(new Date()), deferredInstall = null, recent = [];
 
-  function save() {
+  function persist() {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn(e); }
     mirror();
   }
+  function save() { persist(); checkAch(); }
   function mirror() {
     if (!window.indexedDB) return;
     C.idbSet('snapshot', C.buildCtx(S, new Date())).catch(() => {});
@@ -50,7 +59,7 @@
   }
   function addXp(n) {
     const before = C.level(S.xp); S.xp += n; const after = C.level(S.xp);
-    if (after > before) { levelUp = true; react('levelup'); toast(before < 2 && after >= 2 ? S.settings.petName + ' вылупился! 🐣 Уровень 2' : 'Новый уровень: ' + after + ' 🎉'); }
+    if (after > before) { levelUp = (before < 2 && after >= 2) ? 'hatch' : (before < 8 && after >= 8) ? 'crown' : ((before < 3 && after >= 3) || (before < 5 && after >= 5)) ? 'evolve' : 'levelup'; react(levelUp); toast(before < 2 && after >= 2 ? S.settings.petName + ' вылупился! 🐣 Уровень 2' : 'Новый уровень: ' + after + ' 🎉'); }
     else toast('+' + n + ' XP');
   }
   function autoMeal(now) { const m = C.minutesOf(now); return m < 630 ? 'b' : m < 900 ? 'l' : m < 1260 ? 'd' : 's'; }
@@ -90,12 +99,12 @@
   const phrasesFor = m => PHRASES[m].concat(m === 'neutral' || m === 'happy' ? S.custom.phrases : []);
   const moodAnim = m => m === 'sleepy' ? 'sleep' : m === 'hungry' ? 'hungry' : null;
   function react(name) {
-    pendingReact = levelUp ? 'levelup' : name;
+    pendingReact = levelUp || name;
     clearTimeout(reactT); reactT = setTimeout(flushReact, 40);
   }
   function flushReact() {
     const svg = curSvg(), name = pendingReact; pendingReact = null;
-    if (name === 'levelup') levelUp = false;
+    if (name && name === levelUp) levelUp = false;
     if (!svg || !AN) return;
     if (name) AN.play(svg, name);
     else if (autoAnim) { const a = autoAnim; autoAnim = null; AN.play(svg, a, { for: 9000 }); }
@@ -206,19 +215,58 @@
       : '<p class="muted">Здесь появятся записи за сегодня.</p>';
   }
 
-  /* ---------- Значки ---------- */
-  function renderBadges() {
-    let meals = 0, quests = 0, maxWater = 0;
-    for (const d of Object.values(S.days)) { meals += d.meals.length; quests += d.quests.length; maxWater = Math.max(maxWater, d.water); }
-    const best = C.bestStreak(S.days), lvl = C.level(S.xp);
-    const list = [
-      ['🥄', 'Первая запись', meals >= 1], ['🏃', 'Первая разминка', quests >= 1], ['💧', 'Цель по воде', maxWater >= S.settings.waterGoal],
-      ['🔥', '3 дня подряд', best >= 3], ['🌟', 'Неделя подряд', best >= 7], ['🐣', 'Вылупился', lvl >= 2],
-      ['🧣', 'Уровень 3', lvl >= 3], ['💪', '25 заданий', quests >= 25], ['📒', '50 записей', meals >= 50],
-      ['🎩', 'Уровень 5', lvl >= 5], ['👑', 'Уровень 8', lvl >= 8], ['🏆', '30 дней подряд', best >= 30]
-    ];
-    $('#badges').innerHTML = list.map(b => `<div class="badge ${b[2] ? '' : 'lock'}"><i>${b[0]}</i>${b[1]}</div>`).join('');
+  /* ---------- Достижения ---------- */
+  let inAch = false; const achOpen = {};
+  const achEx = () => ({ todayKey: todayKey(), petCount: Object.keys(P.SPECIES).length });
+  function checkAch(silent) {
+    if (inAch || !C.evalAch || !P) return;
+    inAch = true;
+    try {
+      const got = C.evalAch(S, achEx()).list.filter(a => a.done && !S.ach[a.id]);
+      if (got.length) {
+        const now = Date.now(); got.forEach(a => { S.ach[a.id] = now; });
+        persist();
+        if (!silent) {
+          toast(got.length === 1 ? '🏅 Достижение: ' + got[0].title : '🏅 Новые достижения: ' + got.map(a => a.title).join(', '));
+          react('surprise');
+          renderAch();
+        }
+      }
+    } finally { inAch = false; }
   }
+  function renderAch() {
+    const ev = C.evalAch(S, achEx()), by = {};
+    ev.list.forEach(a => { (by[a.group] = by[a.group] || []).push(a); });
+    $('#achCount').textContent = ev.list.filter(a => a.done).length + ' из ' + ev.list.length;
+    $('#achList').innerHTML = C.ACH_GROUPS.map(g => {
+      const L = by[g.id] || [], n = L.filter(a => a.done).length;
+      const rows = L.map(a => `<div class="ach ${a.done ? 'done' : 'lock'}"><span class="em">${a.emoji}</span>
+        <div class="t"><b>${esc(a.title)}</b><span>${esc(a.desc)}</span>${!a.done && a.target > 1 ? `<div class="bar"><i style="width:${Math.round(a.value / a.target * 100)}%"></i></div>` : ''}</div>
+        <span class="r">${a.done ? '✓' : a.target > 1 ? a.value + '/' + a.target : '🔒'}</span></div>`).join('');
+      return `<details class="agrp" data-g="${g.id}" ${achOpen[g.id] ? 'open' : ''}><summary><b>${esc(g.title)}</b> <span class="pill">${n}/${L.length}</span></summary>${rows}</details>`;
+    }).join('');
+  }
+  $('#achList').addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.g) achOpen[d.dataset.g] = d.open; }, true);
+
+  /* ---------- Тема оформления ---------- */
+  const MODES = [['auto', 'Как в телефоне'], ['light', 'Светлая'], ['dark', 'Тёмная']];
+  const PALS = [['peach', 'Персик', '#d94f30'], ['mint', 'Мята', '#137a57'], ['lavender', 'Лаванда', '#6a4fc2'], ['ocean', 'Море', '#1b6fb5']];
+  const mqDark = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  function applyTheme() {
+    const st = S.settings, mode = st.themeMode || 'auto';
+    const dark = mode === 'dark' || (mode !== 'light' && !!(mqDark && mqDark.matches));
+    const d = document.documentElement;
+    d.dataset.theme = dark ? 'dark' : 'light'; d.dataset.pal = st.palette || 'peach'; d.style.colorScheme = dark ? 'dark' : 'light';
+    const bg = getComputedStyle(d).getPropertyValue('--bg').trim(), m = document.querySelector('meta[name="theme-color"]');
+    if (m && bg) m.setAttribute('content', bg);
+  }
+  if (mqDark && mqDark.addEventListener) mqDark.addEventListener('change', () => { if ((S.settings.themeMode || 'auto') === 'auto') applyTheme(); });
+  function renderThemeUi() {
+    const st = S.settings;
+    $('#themeMode').innerHTML = MODES.map(m => `<button type="button" class="chip ${(st.themeMode || 'auto') === m[0] ? 'on' : ''}" data-act="themeMode" data-v="${m[0]}" aria-pressed="${(st.themeMode || 'auto') === m[0]}">${m[1]}</button>`).join('');
+    $('#themePal').innerHTML = PALS.map(p => `<button type="button" class="swatch ${(st.palette || 'peach') === p[0] ? 'on' : ''}" data-act="themePal" data-v="${p[0]}" aria-pressed="${(st.palette || 'peach') === p[0]}"><i style="--c:${p[2]}"></i>${p[1]}</button>`).join('');
+  }
+  function setTheme(k, v) { S.settings[k] = v; S.flags.theme = true; applyTheme(); renderThemeUi(); save(); }
 
   /* ---------- Уведомления ---------- */
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -327,6 +375,7 @@
     pickPet(t) {
       const id = t.dataset.p; if (!P.SPECIES[id]) return;
       S.pet = id; S.petChosen = true;
+      if (S.petsTried.indexOf(id) < 0) S.petsTried.push(id);
       const defaults = Object.keys(P.SPECIES).map(k => P.SPECIES[k].name);
       if (!S.settings.petName || defaults.indexOf(S.settings.petName) >= 0) S.settings.petName = P.SPECIES[id].name;
       save(); fillSettings(); renderAll(); react('greet');
@@ -336,7 +385,10 @@
       const svg = curSvg(); if (!svg || !AN) return;
       const list = [['happy'], ['greet'], ['dance', { for: 3200 }], ['excited']]; tapN = (tapN + 1) % list.length;
       AN.play(svg, list[tapN][0], list[tapN][1] || {});
+      S.flags.taps = (S.flags.taps || 0) + 1; save();
     },
+    themeMode(t) { setTheme('themeMode', t.dataset.v); },
+    themePal(t) { setTheme('palette', t.dataset.v); },
     wsSp(t) { WS.sp = t.dataset.p; renderWsTop(); },
     wsAnim(t) { WS.anim = t.dataset.a; renderWsTop(); },
     wsPlay() { playWs(); },
@@ -365,6 +417,7 @@
     },
     nudgeClose() { $('#nudge').hidden = true; },
     export() {
+      S.flags.backup = true; save();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
       a.download = 'tosha-backup-' + todayKey() + '.json'; a.click();
@@ -410,7 +463,7 @@
       if (t === 'bool') v = el.checked;
       else if (t === 'num') { v = Number(el.value); if (!Number.isFinite(v)) v = S.settings[k]; v = Math.round(Math.min(+el.dataset.max, Math.max(+el.dataset.min, v))); el.value = v; }
       else if (t === 'sel') v = Number(el.value);
-      else if (k === 'petName') { v = el.value.trim().slice(0, 16) || 'Тоша'; el.value = v; }
+      else if (k === 'petName') { v = el.value.trim().slice(0, 16) || 'Тоша'; el.value = v; if (Object.keys(P.SPECIES).map(x => P.SPECIES[x].name).concat(['Тоша']).indexOf(v) < 0) S.flags.renamed = true; }
       else v = el.value || S.settings[k];
       S.settings[k] = v;
     }
@@ -471,7 +524,7 @@
   });
 
   /* ---------- Запуск ---------- */
-  function renderAll() { renderPet(); renderPicker(); renderPerm(); renderQuest(); renderFoodMini(); renderWater(); renderWeek(); renderFood(); renderBadges(); }
+  function renderAll() { renderPet(); renderPicker(); renderPerm(); renderQuest(); renderFoodMini(); renderWater(); renderWeek(); renderFood(); renderAch(); renderThemeUi(); }
   function navTo(d) {
     if (d.kind === 'meal') { if (d.mealId) mealSel = d.mealId; go('food'); renderFood(); }
     else if (d.kind === 'summary') go('food');
@@ -497,10 +550,13 @@
 
   (async function init() {
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* ок */ }
+    applyTheme();
     fillSettings();
     await syncFromIdb();
+    checkAch(true);
     const p = new URLSearchParams(location.search);
     if (p.get('from')) { navTo({ kind: p.get('from'), mealId: p.get('meal') }); history.replaceState(null, '', location.pathname); }
+    else if (p.get('tab') === 'ws') { go('ws'); history.replaceState(null, '', location.pathname); }
     renderAll();
     save();
     initSW();

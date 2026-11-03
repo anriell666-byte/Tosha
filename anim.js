@@ -10,7 +10,7 @@
   const SEL = {
     root: '.p-root', body: '.p-body', fl: '.p-foot-l', fr: '.p-foot-r', al: '.a-arm-l', ar: '.a-arm-r', tail: '.a-tail',
     ears: '.p-ears', earL: '.a-ear-l', earR: '.a-ear-r', wl: '.a-wing-l', wr: '.a-wing-r', face: '.p-face',
-    prop: '.p-prop', shadow: '.p-shadow'
+    prop: '.p-prop', shadow: '.p-shadow', scarf: '.p-scarf', hat: '.p-hat'
   };
 
   /* ---------- Помощники ключевых кадров ---------- */
@@ -39,11 +39,11 @@
 
   /* ---------- Реквизит ---------- */
   const apple = st => {
-    const base = '<ellipse cx="100" cy="150" rx="14" ry="13" fill="#e8483f" stroke="#b92f2a" stroke-width="2"/><path d="M100 138q0-8 6-10" stroke="#6b3b25" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M103 133q8-6 13 0q-7 6-13 0z" fill="#5bbf72"/><ellipse cx="94" cy="145" rx="3" ry="4.5" fill="#fff" opacity=".35"/>';
+    const base = '<ellipse cx="100" cy="146" rx="14" ry="13" fill="#e8483f" stroke="#b92f2a" stroke-width="2"/><path d="M100 134q0-8 6-10" stroke="#6b3b25" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M103 129q8-6 13 0q-7 6-13 0z" fill="#5bbf72"/><ellipse cx="94" cy="141" rx="3" ry="4.5" fill="#fff" opacity=".35"/>';
     if (st === 0) return `<g>${base}</g>`;
-    if (st === 1) return `<g>${base}<circle cx="111" cy="146" r="7" fill="var(--pet-light)"/></g>`;
-    if (st === 2) return `<g>${base}<circle cx="110" cy="148" r="12" fill="var(--pet-light)"/><circle cx="96" cy="158" r="6" fill="var(--pet-light)"/></g>`;
-    return '<g><path d="M95 140q5-3 10 0q3 10 0 20q-5 3-10 0q-3-10 0-20z" fill="#f6e7c1" stroke="#b92f2a" stroke-width="1.5"/><path d="M100 140v-6" stroke="#6b3b25" stroke-width="2" stroke-linecap="round"/></g>';
+    if (st === 1) return `<g>${base}<circle cx="111" cy="142" r="7" fill="var(--pet-light)"/></g>`;
+    if (st === 2) return `<g>${base}<circle cx="110" cy="144" r="12" fill="var(--pet-light)"/><circle cx="96" cy="154" r="6" fill="var(--pet-light)"/></g>`;
+    return '<g><path d="M95 136q5-3 10 0q3 10 0 20q-5 3-10 0q-3-10 0-20z" fill="#f6e7c1" stroke="#b92f2a" stroke-width="1.5"/><path d="M100 136v-6" stroke="#6b3b25" stroke-width="2" stroke-linecap="round"/></g>';
   };
   const bottle = (x, y, lvl) => `<g><rect x="${x - 9}" y="${y - 18}" width="18" height="36" rx="6" fill="#bfe6f7" stroke="#4aa3cf" stroke-width="2"/><rect x="${x - 5}" y="${y - 25}" width="10" height="8" rx="2" fill="#4aa3cf"/><rect x="${x - 7}" y="${y + 16 - lvl}" width="14" height="${lvl}" rx="3" fill="#5db9e6" opacity=".8"/></g>`;
 
@@ -51,7 +51,7 @@
   const LIB = {}, ORDER = [];
   const GROUPS = [
     { id: 'base', title: 'Базовые' }, { id: 'move', title: 'Движение' },
-    { id: 'state', title: 'Состояния' }, { id: 'react', title: 'Реакции и награды' }
+    { id: 'state', title: 'Состояния' }, { id: 'react', title: 'Реакции и награды' }, { id: 'evo', title: 'Эволюция' }
   ];
   function def(id, title, group, emoji, dur, loop, desc, build) {
     LIB[id] = { id, title, group, emoji, dur, loop, desc, build }; ORDER.push(id);
@@ -181,18 +181,18 @@
     c.mood(.8, 'happy'); c.fx('✨', { x: 60, y: 90, dy: -14, delay: 3400 }); c.fx('✨', { x: 142, y: 84, dy: -14, delay: 3600 });
   });
   def('thirsty', 'Хочет пить', 'state', '🥵', 3000, true, 'Замечает бутылку воды и тянется к ней', c => {
-    c.prop(bottle(188, 146, 22));
+    c.prop(bottle(176, 150, 22));
     c.T('ar', [[0, X()], [.25, X(0, 0, -6)], [.4, X(0, 0, -26)], [.55, X(0, 0, -17)], [.7, X(0, 0, -26)], [.9, X(0, 0, -6)], [1, X()]]);
     c.T('body', [[0, X()], [.3, X(0, 0, 5)], [.7, X(0, 0, 5)], [1, X()]]);
     c.T('face', [[0, X()], [.3, X(2, 0, 7)], [.7, X(2, 0, 7)], [1, X()]]);
     c.T('tail', wag(2, 8)); c.T('ears', [[0, X()], [.3, X(0, -3)], [.7, X(0, -3)], [1, X()]]);
     c.mood(0, 'surprised'); c.mood(.3, 'hungry'); c.mood(.85, 'surprised');
-    c.fx('💧', { x: 188, y: 100, size: 14, dy: -12, d: 1500, loop: true });
+    c.fx('💧', { x: 176, y: 108, size: 14, dy: -12, d: 1500, loop: true });
   });
   def('drink', 'Пьёт', 'state', '🥤', 3600, false, 'Берёт бутылку, делает глотки и довольно улыбается', c => {
-    c.propOrigin(100, 128);
-    c.propAt(0, bottle(100, 142, 24)); c.propAt(.42, bottle(100, 142, 17)); c.propAt(.58, bottle(100, 142, 11)); c.propAt(.72, bottle(100, 142, 6));
-    c.T('prop', [[0, X(0, 18, 0)], [.14, X(0, 0, 0)], [.28, X(-3, -2, -32)], [.7, X(-3, -2, -36)], [.82, X(0, 0, 0)], [.92, X(0, 16, 0)], [1, X(0, 16, 0)]]);
+    c.propOrigin(100, 132);
+    c.propAt(0, bottle(100, 146, 24)); c.propAt(.42, bottle(100, 146, 17)); c.propAt(.58, bottle(100, 146, 11)); c.propAt(.72, bottle(100, 146, 6));
+    c.T('prop', [[0, X(0, 18, 0)], [.14, X(0, 0, 0)], [.28, X(-3, -22, -30)], [.7, X(-3, -22, -34)], [.82, X(0, 0, 0)], [.92, X(0, 16, 0)], [1, X(0, 16, 0)]]);
     c.T('al', [[0, X()], [.14, X(0, 0, -52)], [.84, X(0, 0, -52)], [.94, X()], [1, X()]]); c.T('ar', [[0, X()], [.14, X(0, 0, 52)], [.84, X(0, 0, 52)], [.94, X()], [1, X()]]);
     c.T('body', [[0, X()], [.4, X()], [.45, X(0, 0, 0, 1.02, 1.03)], [.5, X()], [.58, X(0, 0, 0, 1.02, 1.03)], [.63, X()], [.72, X(0, 0, 0, 1.02, 1.03)], [.77, X()], [1, X()]]);
     c.T('face', [[0, X()], [.28, X(0, -3, -4)], [.7, X(0, -3, -4)], [.85, X()], [1, X()]]); c.T('tail', wag(3, 9));
@@ -283,6 +283,49 @@
     c.mood(0, 'happy'); c.fx('💧', { x: 56, y: 70, dy: -14, d: 1300 }); c.fx('👍', { x: 168, y: 66, size: 18, dy: -14, delay: 500, d: 1300 });
   });
 
+
+  /* — Эволюция — */
+  const SHELL = 'M46 66C44 6 156 6 154 66L140 56L126 70L112 52L98 70L86 52L72 70L60 56Z';
+  const shellHalf = (side) => `<defs><clipPath id="evc${side}"><rect x="${side === 'L' ? 0 : 100}" y="0" width="100" height="90"/></clipPath></defs><g clip-path="url(#evc${side})"><path d="${SHELL}" fill="#fffaf0" stroke="#e5cfae" stroke-width="3" stroke-linejoin="round"/>${side === 'L' ? '<path d="M100 14L92 30L104 40L94 56L100 66" fill="none" stroke="#c9a77a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' : ''}</g>`;
+  const flash = '<defs><radialGradient id="evfl"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff6c8" stop-opacity=".85"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></radialGradient></defs><circle cx="100" cy="110" r="40" fill="url(#evfl)"/>';
+  const pop = (a, b, c1) => [[0, X(0, 0, 0, 0)], [a, X(0, 0, 0, 0)], [b, X(0, 0, 0, 1.3)], [c1, X()], [1, X()]];
+  def('hatch', 'Вылупление', 'evo', '🐣', 4400, false, 'Скорлупа дрожит, трескается и слетает — появляются ушки', c => {
+    c.shape(shellHalf('L'), [[0, X(), 1], [.08, X(0, 0, -4), 1], [.16, X(0, 0, 4), 1], [.24, X(0, 0, -5), 1], [.32, X(0, -2, 5), 1], [.4, X(0, 0, -6), 1], [.46, X(0, -3, 0), 1], [.5, X(-8, -22, -28), 1], [.75, X(-38, 20, -75), .8], [.9, X(-52, 70, -110), 0], [1, X(-52, 70, -110), 0]], { origin: '100px 66px' });
+    c.shape(shellHalf('R'), [[0, X(), 1], [.08, X(0, 0, -4), 1], [.16, X(0, 0, 4), 1], [.24, X(0, 0, -5), 1], [.32, X(0, -2, 5), 1], [.4, X(0, 0, -6), 1], [.46, X(0, -3, 0), 1], [.5, X(8, -26, 24), 1], [.75, X(38, 14, 70), .8], [.9, X(54, 66, 110), 0], [1, X(54, 66, 110), 0]], { origin: '100px 66px' });
+    c.T('root', [[0, X()], [.1, X(0, 0, 0, 1.03, .97)], [.46, X(0, 0, 0, 1.03, .97)], [.52, X(0, 0, 0, .94, 1.12)], [.62, X(0, -26, 0, .93, 1.12)], [.74, X(0, 0, 0, 1.12, .88)], [.84, X(0, 0, 0, .98, 1.03)], [1, X()]]);
+    c.T('shadow', [[0, X()], [.62, X(0, 0, 0, .7)], [.74, X(0, 0, 0, 1.1)], [1, X()]]);
+    c.T('ears', pop(.46, .66, .8)); c.T('tail', [[0, X()], [.6, X()], [.7, X(0, 0, 14)], [.8, X(0, 0, -14)], [.9, X(0, 0, 8)], [1, X()]]);
+    c.T('al', [[0, X()], [.6, X()], [.7, X(0, 0, 70)], [.85, X(0, 0, 50)], [1, X()]]); c.T('ar', [[0, X()], [.6, X()], [.7, X(0, 0, -70)], [.85, X(0, 0, -50)], [1, X()]]);
+    c.mood(0, 'sleepy'); c.mood(.46, 'surprised'); c.mood(.7, 'happy');
+    c.fx('💥', { x: 100, y: 44, size: 22, dy: -10, delay: 2000, d: 700 }); c.fx('🐣', { x: 100, y: 10, size: 26, dy: -20, delay: 2900, d: 1300 });
+    burst(c, 100, 90, ['✨', '⭐', '✨', '⭐', '✨', '✨'], 2900, 70);
+  });
+  def('evolve', 'Эволюция', 'evo', '🌟', 5200, false, 'Светится белым силуэтом, вспышка — и питомец стал взрослее', c => {
+    c.T('root', [[0, X()], [.14, X(0, 0, 0, 1.12, .84)], [.3, X(0, -34, 0, .92, 1.14)], [.42, X(0, -38, 0, .96, 1.1)], [.5, X(0, -38, 0, 1.04, 1.04)], [.56, X(0, -38, 0, 1.1, 1.1)], [.66, X(0, -34, 0, 1, 1)], [.8, X(0, 0, 0, 1.14, .84)], [.9, X(0, 0, 0, .98, 1.04)], [1, X()]]);
+    c.T('shadow', [[0, X()], [.14, X(0, 0, 0, 1.1)], [.35, X(0, 0, 0, .6)], [.66, X(0, 0, 0, .65)], [.8, X(0, 0, 0, 1.1)], [1, X()]]);
+    const W = 'brightness(1) invert(0) drop-shadow(0 0 0px #ffe9a0)', Wn = 'brightness(0) invert(1) drop-shadow(0 0 12px #ffe9a0)';
+    c.A('root', [{ offset: 0, filter: W }, { offset: .2, filter: W }, { offset: .3, filter: Wn }, { offset: .36, filter: W }, { offset: .4, filter: Wn }, { offset: .44, filter: W }, { offset: .47, filter: Wn }, { offset: .5, filter: Wn }, { offset: .62, filter: Wn }, { offset: .74, filter: W }, { offset: 1, filter: W }]);
+    c.T('scarf', pop(.5, .72, .86)); c.T('hat', pop(.5, .72, .86));
+    c.T('al', [[0, X()], [.3, X(0, 0, 40)], [.5, X(0, 0, 120)], [.7, X(0, 0, 140)], [.85, X(0, 0, 10)], [1, X()]]); c.T('ar', [[0, X()], [.3, X(0, 0, -40)], [.5, X(0, 0, -120)], [.7, X(0, 0, -140)], [.85, X(0, 0, -10)], [1, X()]]);
+    c.T('ears', [[0, X()], [.14, X(0, 4)], [.36, X(0, -6, 0, 1, 1.08)], [.56, X(0, -2, 0, 1.1, 1.1)], [.8, X(0, 4)], [1, X()]]); c.T('tail', wag(6, 14));
+    c.shape(flash, [[0, X(0, 0, 0, .2), 0], [.46, X(0, 0, 0, .3), 0], [.52, X(0, 0, 0, 3.2), 1], [.7, X(0, 0, 0, 5.5), 0], [1, X(0, 0, 0, 5.5), 0]], { origin: '100px 110px' });
+    c.mood(0, 'motivated'); c.mood(.3, 'surprised'); c.mood(.56, 'excited'); c.mood(.85, 'happy');
+    c.ring(100, 100, '#ffc83d', 2200, 1200); c.ring(100, 100, '#ffffff', 2500, 1200);
+    [0, 1, 2, 3, 4, 5].forEach(i => c.fx('✨', { x: 100 + (i % 2 ? 1 : -1) * (30 + i * 9), y: 150 - i * 12, dy: -34, delay: 500 + i * 220, d: 1100 }));
+    burst(c, 100, 100, ['🌟', '✨', '⭐', '✨', '🌟', '✨', '⭐', '✨'], 2700, 80);
+  });
+  def('crown', 'Коронация', 'evo', '👑', 4200, false, 'Корона падает с неба на голову, питомец гордо выпрямляется', c => {
+    const crown = '<path d="M66 52L72 22L88 40L100 14L112 40L128 22L134 52Z" fill="#ffc83d" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="20" r="3" fill="#e8483f"/><circle cx="76" cy="30" r="2.4" fill="#5db9e6"/><circle cx="124" cy="30" r="2.4" fill="#5db9e6"/>';
+    c.shape(crown, [[0, X(0, -120, -20), 0], [.1, X(0, -100, -14), 1], [.4, X(0, 4, 4), 1], [.46, X(0, -8, -2), 1], [.52, X(0, 0, 0), 1], [.54, X(0, 0, 0), 0], [1, X(0, 0, 0), 0]], { origin: '100px 40px' });
+    c.T('hat', [[0, X(0, 0, 0, 0)], [.52, X(0, 0, 0, 0)], [.53, X(0, 0, 0, 1.08)], [.62, X()], [1, X()]]);
+    c.T('root', [[0, X()], [.4, X()], [.46, X(0, 0, 0, 1.06, .93)], [.56, X(0, -10, 0, .97, 1.06)], [.68, X(0, 0, 0, 1.05, .95)], [.8, X(0, 0, 0, .98, 1.03)], [1, X()]]);
+    c.T('face', [[0, X()], [.4, X(0, 0, 0)], [.46, X(0, 3, 0)], [.6, X(0, -3, 0)], [1, X()]]);
+    c.T('al', [[0, X()], [.5, X()], [.65, X(0, 0, 22)], [.9, X(0, 0, 10)], [1, X()]]); c.T('ar', [[0, X()], [.5, X()], [.65, X(0, 0, -22)], [.9, X(0, 0, -10)], [1, X()]]);
+    c.T('tail', wag(4, 10)); c.mood(0, 'surprised'); c.mood(.46, 'happy'); c.mood(.7, 'excited');
+    c.ring(100, 40, '#ffc83d', 1800, 1100);
+    [['✨', 60, 30], ['⭐', 140, 28], ['✨', 100, 0], ['🌟', 40, 60], ['✨', 160, 62]].forEach((e, i) => c.fx(e[0], { x: e[1], y: e[2], size: 16, dy: -14, delay: 1900 + i * 160, d: 1200 }));
+  });
+
   /* ---------- Контекст построения ---------- */
   function setFace(svg, m) { const t = svg.querySelector('.p-facedyn'); if (t && P && P.face) t.innerHTML = P.face(svg.dataset.sp, m); }
   function setProp(svg, html) { const p = svg.querySelector('.p-prop'); if (p) p.innerHTML = html; }
@@ -297,6 +340,21 @@
         const kf = frames.map(f => { prev = Math.max(prev, Math.min(1, Math.max(0, f[0]))); return { offset: prev, transform: f[1], easing: f[2] || SOFT }; });
         const a = el.animate(kf, { duration: opt.d || def.dur, delay: opt.delay || 0, iterations: loop ? Infinity : 1, easing: 'linear', fill: 'none' });
         a.playbackRate = st.speed; st.anims.push(a); return a;
+      },
+      A(k, frames, opt) {   // любые свойства (например filter): frames = [{offset, ...css}]
+        if (st.still) return null;
+        const el = svg.querySelector(SEL[k]); if (!el) return null; opt = opt || {};
+        const an = el.animate(frames.map(f => Object.assign({ easing: SOFT }, f)), { duration: opt.d || def.dur, iterations: loop ? Infinity : 1, easing: 'linear', fill: 'none' });
+        an.playbackRate = st.speed; st.anims.push(an); return an;
+      },
+      shape(html, frames, o) {   // своя картинка поверх питомца (скорлупа, корона, вспышка)
+        if (st.still) return null;
+        o = o || {}; const layer = svg.querySelector('.p-fx'); if (!layer) return null;
+        const gEl = document.createElementNS(NS, 'g'); gEl.innerHTML = html; gEl.style.transformOrigin = o.origin || '100px 100px'; gEl.style.opacity = 0; layer.appendChild(gEl);
+        let prev = 0;
+        const kf = frames.map(f => { prev = Math.max(prev, Math.min(1, f[0])); return { offset: prev, transform: f[1], opacity: f[2] == null ? 1 : f[2], easing: SOFT }; });
+        const an = gEl.animate(kf, { duration: o.d || def.dur, iterations: 1, easing: 'linear', fill: 'both' });
+        an.playbackRate = st.speed; st.anims.push(an); return an;
       },
       cue(f, fn) { st.cues.push([f, fn]); },
       mood(f, m) { st.cues.push([f, () => { st.faceDirty = true; setFace(svg, m); }]); },

@@ -58,6 +58,7 @@
       quietStart: '22:00', quietEnd: '08:00',
       moveEveryMin: 120, maxMovePerDay: 3,
       summaryTime: '20:30',
+      themeMode: 'auto', palette: 'peach',
       meals: [
         { id: 'b', name: 'Завтрак', time: '09:00' },
         { id: 'l', name: 'Обед',    time: '13:30' },
@@ -82,6 +83,104 @@
     let best = 0, run = 0, prev = null;
     for (const k of keys) { run = (prev && prevKey(k) === prev) ? run + 1 : 1; best = Math.max(best, run); prev = k; }
     return best;
+  }
+
+
+  /* ---------- Достижения ---------- */
+  const ACH_GROUPS = [
+    { id: 'food', title: 'Еда' }, { id: 'move', title: 'Движение' }, { id: 'water', title: 'Вода' },
+    { id: 'streak', title: 'Серии' }, { id: 'level', title: 'Уровни' }, { id: 'special', title: 'Особые' }
+  ];
+  const keyMs = k => { const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2], 12).getTime(); };
+
+  function computeStats(S, ex) {
+    ex = ex || {};
+    const days = S.days || {}, st = S.settings || defaultSettings(), cu = S.custom || {}, fl = S.flags || {};
+    const keys = Object.keys(days).sort(), mealIds = (st.meals || []).map(m => m.id);
+    let meals = 0, quests = 0, waterTotal = 0, waterGoalDays = 0, maxWater = 0, fullMealDays = 0, breakfastDays = 0, perfectDays = 0;
+    let morning = false, weekend = false, customDone = false;
+    const qset = {}, foods = {}, active = [];
+    for (const k of keys) {
+      const d = days[k], ms = d.meals || [], qs = d.quests || [], w = d.water || 0;
+      meals += ms.length; quests += qs.length; waterTotal += w; maxWater = Math.max(maxWater, w);
+      const goalHit = w >= st.waterGoal; if (goalHit) waterGoalDays++;
+      const set = {}; ms.forEach(m => { set[m.meal] = 1; if (m.name) foods[String(m.name).trim().toLowerCase()] = 1; });
+      const full = mealIds.length > 0 && mealIds.every(id => set[id]);
+      if (full) fullMealDays++;
+      if (set.b) breakfastDays++;
+      if (full && goalHit && qs.length >= 1) perfectDays++;
+      qs.forEach(q => {
+        qset[q.id] = 1; if (String(q.id).indexOf('u_') === 0) customDone = true;
+        const dt = new Date(q.ts), h = dt.getHours(), wd = dt.getDay();
+        if (h >= 5 && h < 9) morning = true; if (wd === 0 || wd === 6) weekend = true;
+      });
+      if (ms.length || qs.length || w > 0) active.push(k);
+    }
+    let comeback = false;
+    for (let i = 1; i < active.length; i++) if (Math.round((keyMs(active[i]) - keyMs(active[i - 1])) / 864e5) >= 4) { comeback = true; break; }
+    const today = ex.todayKey || dayKey(new Date());
+    return {
+      meals, quests, waterTotal, waterGoalDays, maxWater, waterGoal: st.waterGoal, fullMealDays, breakfastDays, perfectDays,
+      distinctQuests: Object.keys(qset).length, distinctFoods: Object.keys(foods).length,
+      morning: morning ? 1 : 0, weekend: weekend ? 1 : 0, comeback: comeback ? 1 : 0, customDone: customDone ? 1 : 0,
+      level: level(S.xp || 0), xp: S.xp || 0, best: bestStreak(days), cur: streak(days, today),
+      petsTried: (S.petsTried || []).length, petCount: ex.petCount || 6,
+      customQuests: (cu.quests || []).length, customPhrases: (cu.phrases || []).length, colors: Object.keys(cu.colors || {}).length,
+      theme: fl.theme ? 1 : 0, backup: fl.backup ? 1 : 0, taps: fl.taps || 0, renamed: fl.renamed ? 1 : 0
+    };
+  }
+
+  const A = (id, emoji, title, desc, group, cur, target) => ({ id, emoji, title, desc, group, cur, target });
+  const ACH = [
+    A('first_meal', '🥄', 'Первая запись', 'Записать первый приём пищи', 'food', s => s.meals, 1),
+    A('meals_10', '📒', '10 записей', 'Сделать 10 записей о еде', 'food', s => s.meals, 10),
+    A('meals_50', '📚', '50 записей', 'Сделать 50 записей о еде', 'food', s => s.meals, 50),
+    A('meals_100', '🗂️', 'Сотня записей', 'Сделать 100 записей о еде', 'food', s => s.meals, 100),
+    A('full_day', '🍽️', 'Три приёма', 'Записать завтрак, обед и ужин за один день', 'food', s => s.fullMealDays, 1),
+    A('breakfast_7', '🌅', 'Семь завтраков', 'Записать завтрак в 7 разных дней', 'food', s => s.breakfastDays, 7),
+    A('foods_10', '🥗', 'Разнообразное меню', 'Записать 10 разных блюд по названию', 'food', s => s.distinctFoods, 10),
+
+    A('first_quest', '🏃', 'Первая разминка', 'Выполнить первое мини-задание', 'move', s => s.quests, 1),
+    A('quests_10', '👟', '10 заданий', 'Выполнить 10 заданий', 'move', s => s.quests, 10),
+    A('quests_25', '💪', '25 заданий', 'Выполнить 25 заданий', 'move', s => s.quests, 25),
+    A('quests_50', '🥇', '50 заданий', 'Выполнить 50 заданий', 'move', s => s.quests, 50),
+    A('quests_100', '🏅', 'Сто заданий', 'Выполнить 100 заданий', 'move', s => s.quests, 100),
+    A('variety_10', '🎲', 'Разнообразие', 'Выполнить 10 разных заданий', 'move', s => s.distinctQuests, 10),
+    A('morning', '🌄', 'Утренняя разминка', 'Выполнить задание между 5 и 9 утра', 'move', s => s.morning, 1),
+    A('weekend', '🌤️', 'Выходной в движении', 'Выполнить задание в субботу или воскресенье', 'move', s => s.weekend, 1),
+
+    A('water_goal', '💧', 'Цель по воде', 'Выпить дневную норму воды', 'water', s => s.maxWater, s => s.waterGoal),
+    A('water_100', '🌊', '100 стаканов', 'Выпить 100 стаканов воды всего', 'water', s => s.waterTotal, 100),
+    A('water_week', '🫗', 'Водная неделя', 'Достичь цели по воде в 7 разных дней', 'water', s => s.waterGoalDays, 7),
+
+    A('streak_3', '🔥', '3 дня подряд', 'Серия из 3 дней', 'streak', s => s.best, 3),
+    A('streak_7', '🌟', 'Неделя подряд', 'Серия из 7 дней', 'streak', s => s.best, 7),
+    A('streak_14', '✨', 'Две недели', 'Серия из 14 дней', 'streak', s => s.best, 14),
+    A('streak_30', '🏆', 'Месяц подряд', 'Серия из 30 дней', 'streak', s => s.best, 30),
+    A('comeback', '🤗', 'С возвращением', 'Вернуться после паузы в 3 дня и больше. Мы всегда рады', 'streak', s => s.comeback, 1),
+
+    A('lvl_2', '🐣', 'Вылупился', 'Дойти до 2 уровня', 'level', s => s.level, 2),
+    A('lvl_3', '🧣', 'Уровень 3', 'Дойти до 3 уровня и получить шарф', 'level', s => s.level, 3),
+    A('lvl_5', '🧢', 'Уровень 5', 'Дойти до 5 уровня и получить шапку', 'level', s => s.level, 5),
+    A('lvl_8', '👑', 'Уровень 8', 'Дойти до 8 уровня и получить корону', 'level', s => s.level, 8),
+    A('lvl_10', '🌈', 'Легенда', 'Дойти до 10 уровня', 'level', s => s.level, 10),
+    A('xp_500', '⭐', '500 XP', 'Набрать 500 XP', 'level', s => s.xp, 500),
+
+    A('perfect_day', '🎯', 'Идеальный день', 'Все приёмы пищи, цель по воде и хотя бы одно задание за день', 'special', s => s.perfectDays, 1),
+    A('collector', '🐾', 'Коллекционер', 'Побыть со всеми питомцами', 'special', s => s.petsTried, s => s.petCount),
+    A('designer', '🎨', 'Дизайнер', 'Сменить тему или цвет питомца', 'special', s => (s.theme || s.colors > 0) ? 1 : 0, 1),
+    A('author', '✍️', 'Автор', 'Добавить своё задание или свою фразу', 'special', s => (s.customQuests + s.customPhrases) > 0 ? 1 : 0, 1),
+    A('own_quest', '✅', 'Своё задание', 'Выполнить задание, которое придумала сама', 'special', s => s.customDone, 1),
+    A('pet_love', '🫶', 'Любимчик', 'Погладить питомца 10 раз', 'special', s => s.taps, 10),
+    A('name_it', '🏷️', 'Имя', 'Дать питомцу своё имя', 'special', s => s.renamed, 1),
+    A('backup', '💾', 'Надёжно', 'Сохранить резервную копию данных', 'special', s => s.backup, 1)
+  ];
+  const tgt = (a, st) => typeof a.target === 'function' ? a.target(st) : a.target;
+  /* Состояние всех достижений: { stats, list: [{...a, value, target, done}] } */
+  function evalAch(S, ex) {
+    const stats = computeStats(S, ex);
+    const list = ACH.map(a => { const t = Math.max(1, tgt(a, stats)), v = Math.min(t, a.cur(stats) || 0); return { id: a.id, emoji: a.emoji, title: a.title, desc: a.desc, group: a.group, value: v, target: t, done: v >= t }; });
+    return { stats, list };
   }
 
   /* ---------- Напоминания ---------- */
@@ -188,7 +287,7 @@
 
   function notifOptions(due, settings) {
     return {
-      body: due.body, tag: due.tag, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png',
+      body: due.body, tag: due.tag, icon: 'icon-192.png', badge: 'icon-96.png',
       silent: !!settings.silent,
       data: { kind: due.kind, mealId: due.mealId || '', questId: due.questId || '' }
     };
@@ -221,7 +320,7 @@
 
   const api = {
     dayKey, toMin, minutesOf, isQuiet, hash, pick, QUESTS, questById, pickQuest, defaultSettings,
-    level, xpForLevel, qualifies, prevKey, streak, bestStreak,
+    level, xpForLevel, qualifies, prevKey, streak, bestStreak, ACH, ACH_GROUPS, computeStats, evalAch,
     buildCtx, computeDue, markFired, pruneFired, notifOptions, idbGet, idbSet
   };
   root.ToshaCore = api;

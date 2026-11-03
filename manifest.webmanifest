@@ -1,52 +1,127 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "Тоша — тихий помощник",
   "short_name": "Тоша",
   "description": "Ненавязчивые напоминания о еде и движении в формате заботы о питомце",
-  "start_url": "./index.html",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#fff7ec",
   "theme_color": "#fff7ec",
-  "lang": "ru",
-  "dir": "ltr",
-  "categories": ["lifestyle", "utilities"],
+  "categories": [
+    "health",
+    "fitness",
+    "lifestyle"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "./icons/icon-192.png",
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-maskable-512.png",
+      "src": "icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
+  "shortcuts": [
     {
-      "src": "./screenshots/desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Главный экран приложения"
+      "name": "Записать еду",
+      "short_name": "Еда",
+      "description": "Быстро записать приём пищи",
+      "url": "./?from=meal",
+      "icons": [
+        {
+          "src": "icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "src": "./screenshots/mobile.png",
-      "sizes": "750x1334",
+      "name": "Мини-задание",
+      "short_name": "Задание",
+      "description": "Посмотреть задание на движение",
+      "url": "./?from=move",
+      "icons": [
+        {
+          "src": "icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Мастерская",
+      "short_name": "Мастерская",
+      "description": "Анимации, цвета и свои задания",
+      "url": "./?tab=ws",
+      "icons": [
+        {
+          "src": "icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "shot-1.png",
+      "sizes": "720x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Мобильный интерфейс"
+      "label": "Питомец и мини-задание"
+    },
+    {
+      "src": "shot-2.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Учёт еды"
+    },
+    {
+      "src": "shot-3.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Достижения"
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
+  },
+  "related_applications": []
 }

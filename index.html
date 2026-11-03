@@ -5,9 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#fff7ec">
+<script>
+/* Применяем тему до отрисовки, чтобы страница не мигала */
+(function(){try{var s=(JSON.parse(localStorage.getItem('tosha.v1')||'{}').settings)||{},m=s.themeMode||'auto',d=document.documentElement;
+var dark=m==='dark'||(m!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+d.setAttribute('data-theme',dark?'dark':'light');d.setAttribute('data-pal',s.palette||'peach');d.style.colorScheme=dark?'dark':'light';}catch(e){}})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Тоша</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -16,10 +22,20 @@
   --teal:#1f8f82;--pet:#ffb86b;--pet-light:#ffe6c2;--line:#f1e2cf;--soft:#fff0dc;
   --shadow:0 2px 0 rgba(120,80,40,.05),0 10px 26px rgba(120,80,40,.08)
 }
+/* палитры (светлые) */
+:root[data-pal="mint"]{--bg:#eefaf3;--soft:#dcf2e7;--line:#cfe7da;--ink:#24342d;--muted:#667c71;--accent:#137a57;--teal:#2f9fb0}
+:root[data-pal="lavender"]{--bg:#f6f2ff;--soft:#ebe4fb;--line:#ddd3f3;--ink:#2e2840;--muted:#76708e;--accent:#6a4fc2;--teal:#2a9d8f}
+:root[data-pal="ocean"]{--bg:#eef6fd;--soft:#dcebf8;--line:#cfe0ef;--ink:#22313f;--muted:#66798c;--accent:#1b6fb5;--teal:#1f9a8a}
+/* тёмная тема */
 @media (prefers-color-scheme:dark){
-  :root{--bg:#1d1818;--card:#292121;--ink:#f7ece1;--muted:#b6a59b;--accent:#ff8765;--accent-ink:#2a1410;
+  :root:not([data-theme]){--bg:#1d1818;--card:#292121;--ink:#f7ece1;--muted:#b6a59b;--accent:#ff8765;--accent-ink:#2a1410;
     --teal:#46c2b3;--line:#3b302e;--soft:#342827;--shadow:none}
 }
+:root[data-theme="dark"]{--bg:#1d1818;--card:#292121;--ink:#f7ece1;--muted:#b6a59b;--accent:#ff8765;--accent-ink:#2a1410;
+  --teal:#46c2b3;--line:#3b302e;--soft:#342827;--shadow:none}
+:root[data-theme="dark"][data-pal="mint"]{--bg:#111b17;--card:#1a2621;--ink:#e9f5ee;--muted:#9bb3a7;--accent:#5fd1a1;--accent-ink:#08261a;--teal:#6ec3d4;--line:#2b3c34;--soft:#22312a}
+:root[data-theme="dark"][data-pal="lavender"]{--bg:#17141f;--card:#211d2c;--ink:#eee9fb;--muted:#a9a0c0;--accent:#a996ff;--accent-ink:#1d1440;--teal:#52cdbd;--line:#322c44;--soft:#2a2438}
+:root[data-theme="dark"][data-pal="ocean"]{--bg:#101820;--card:#18232d;--ink:#e6f1fa;--muted:#9bb0c1;--accent:#5eb0f0;--accent-ink:#06233b;--teal:#52cdb5;--line:#27384a;--soft:#1f2e3c}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   padding-bottom:calc(84px + env(safe-area-inset-bottom))}
@@ -142,10 +158,22 @@ textarea.in{min-height:100px;resize:vertical;font:inherit}
 details summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:4px 0}
 
 /* значки */
-.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.badge{text-align:center;font-size:.75rem;padding:10px 4px;border-radius:16px;background:var(--soft)}
-.badge i{display:block;font-style:normal;font-size:1.7rem;margin-bottom:2px}
-.badge.lock{opacity:.45;filter:grayscale(1)}
+/* достижения и тема */
+.agrp{border-top:1px dashed var(--line);padding:2px 0}.agrp:first-child{border-top:0}
+.agrp summary{cursor:pointer;padding:10px 0;list-style:none;display:flex;gap:8px;align-items:center;font-size:1rem}
+.agrp summary::-webkit-details-marker{display:none}
+.agrp summary::after{content:"›";margin-left:auto;font-size:1.4rem;color:var(--muted);transition:transform .2s}
+.agrp[open] summary::after{transform:rotate(90deg)}
+.ach{display:flex;gap:12px;align-items:center;padding:9px 0}
+.ach .em{font-size:1.5rem;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--soft);flex:0 0 auto}
+.ach.lock .em{filter:grayscale(1);opacity:.55}
+.ach .t{flex:1;min-width:0}.ach .t b{display:block;font-size:.95rem}.ach .t span{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
+.ach .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}.ach .bar i{display:block;height:100%;background:var(--teal);border-radius:99px}
+.ach .r{flex:0 0 auto;font-size:.82rem;font-weight:800;color:var(--muted)}.ach.done .r{color:var(--teal);font-size:1.1rem}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.swatch{appearance:none;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:18px;padding:8px 14px 8px 9px;font:inherit;font-size:.88rem;font-weight:700;display:flex;gap:8px;align-items:center;cursor:pointer}
+.swatch i{width:22px;height:22px;border-radius:50%;display:block;background:var(--c)}
+.swatch.on{border-color:var(--accent);background:var(--soft)}
 
 /* настройки */
 .srow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
@@ -265,7 +293,10 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:4px 0}
   <!-- ЕЩЁ -->
   <section id="tab-more" class="tab">
     <div class="card"><h3>Питомец</h3><div class="picker" id="pickMore"></div></div>
-    <div class="card"><h3>Значки</h3><div class="badges" id="badges"></div></div>
+    <div class="card"><h3>Оформление</h3>
+      <div class="qhead">Тема</div><div class="chips" id="themeMode"></div>
+      <div class="qhead" style="margin-top:8px">Цвета</div><div class="swatches" id="themePal"></div></div>
+    <div class="card"><h3>Достижения <span class="pill" id="achCount"></span></h3><div id="achList"></div></div>
 
     <div class="card">
       <h3>Напоминания</h3>
