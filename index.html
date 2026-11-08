@@ -62,6 +62,13 @@ p{margin:0 0 8px}
   border-radius:14px;padding:11px 12px;min-height:46px}
 .in.sm{width:auto;min-width:110px;text-align:right}
 .in:focus,.btn:focus-visible,.chip:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:1px}
+.sug{position:absolute;left:0;right:0;top:100%;z-index:20;background:var(--card);border:1.5px solid var(--line);border-radius:14px;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:min(60vh,360px);overflow-y:auto}
+.sug button{display:flex;width:100%;align-items:center;gap:10px;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.sug button:last-child{border-bottom:0}
+.sug .sn{flex:1;min-width:0}.sug .sk{color:var(--muted);font-size:.8em;white-space:nowrap}
+.gramsrow[hidden]{display:none}
+.gramsrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 8px}
+.gramsrow .in{width:90px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .chip{appearance:none;border:1.5px solid var(--line);background:transparent;color:var(--ink);font:inherit;
   font-size:.92rem;border-radius:999px;padding:7px 13px;cursor:pointer}
@@ -236,7 +243,18 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:4px 0}
     <form class="card" id="foodForm" autocomplete="off">
       <h3>Что съел(а)?</h3>
       <div class="chips" id="mealChips"></div>
-      <div style="margin-bottom:8px"><input class="in" id="fName" placeholder="Что именно (необязательно)" maxlength="40"></div>
+      <div style="margin-bottom:8px;position:relative">
+        <input class="in" id="fName" placeholder="Что съел(а)? Начни вводить: гречка, борщ…" maxlength="40" autocomplete="off">
+        <div id="foodSug" class="sug" hidden></div>
+      </div>
+      <div id="gramsRow" class="gramsrow" hidden>
+        <label class="muted small" for="fGrams" id="gramsLbl">Граммы</label>
+        <input class="in" id="fGrams" type="number" inputmode="numeric" min="1" max="3000">
+        <button type="button" class="chip" data-act="gramsMul" data-m="0.5">½</button>
+        <button type="button" class="chip" data-act="gramsMul" data-m="1">1</button>
+        <button type="button" class="chip" data-act="gramsMul" data-m="2">×2</button>
+        <span class="muted small" id="gramsHint"></span>
+      </div>
       <div class="row">
         <input class="in" id="fKcal" type="number" inputmode="numeric" min="1" max="5000" placeholder="Ккал" required>
         <button class="btn fit" type="submit">Записать</button>

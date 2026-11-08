@@ -1,0 +1,88 @@
+# Сборка Android-приложения «Тоша». Кладётся в репозиторий как .github/workflows/build-apk.yml
+name: Собрать APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['README.md']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Установить зависимости
+        run: npm install
+
+      - name: Собрать папку www из файлов приложения
+        run: |
+          mkdir -p www
+          cp index.html core.js pets.js anim.js app.js manifest.webmanifest www/
+          cp icon-*.png apple-touch-icon.png shot-*.png www/
+
+      - name: Создать Android-проект
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Иконка, разрешения и номер версии
+        run: |
+          pip install pillow
+          python3 - <<'PY'
+          import os, re
+          from PIL import Image
+          res = 'android/app/src/main/res'
+          src = Image.open('icon-512.png').convert('RGBA')
+          for d, s in [('mdpi', 48), ('hdpi', 72), ('xhdpi', 96), ('xxhdpi', 144), ('xxxhdpi', 192)]:
+              for n in ('ic_launcher.png', 'ic_launcher_round.png', 'ic_launcher_foreground.png'):
+                  p = f'{res}/mipmap-{d}/{n}'
+                  if os.path.exists(os.path.dirname(p)):
+                      src.resize((s, s), Image.LANCZOS).save(p)
+          for f in os.listdir(res):
+              if f.startswith('mipmap-anydpi'):
+                  for x in os.listdir(f'{res}/{f}'):
+                      os.remove(f'{res}/{f}/{x}')
+          m = 'android/app/src/main/AndroidManifest.xml'
+          t = open(m, encoding='utf8').read()
+          for perm in ('POST_NOTIFICATIONS', 'RECEIVE_BOOT_COMPLETED'):
+              if perm not in t:
+                  t = t.replace('</manifest>', f'    <uses-permission android:name="android.permission.{perm}" />\n</manifest>')
+          open(m, 'w', encoding='utf8').write(t)
+          g = 'android/app/build.gradle'
+          t = open(g, encoding='utf8').read()
+          t = re.sub(r'versionCode \d+', 'versionCode ${{ github.run_number }}', t)
+          t = re.sub(r'versionName "[^"]*"', 'versionName "1.${{ github.run_number }}"', t)
+          open(g, 'w', encoding='utf8').write(t)
+          PY
+
+      - name: Подпись (один и тот же ключ, чтобы приложение обновлялось поверх)
+        run: |
+          mkdir -p ~/.android
+          cp tosha-debug.keystore ~/.android/debug.keystore
+
+      - name: Собрать APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Опубликовать APK в Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk tosha.apk
+          gh release create "build-${{ github.run_number }}" tosha.apk \
+            --title "Тоша, сборка ${{ github.run_number }}" \
+            --notes "Скачайте tosha.apk и установите."
