@@ -51,7 +51,7 @@
   const LIB = {}, ORDER = [];
   const GROUPS = [
     { id: 'base', title: 'Базовые' }, { id: 'move', title: 'Движение' },
-    { id: 'state', title: 'Состояния' }, { id: 'react', title: 'Реакции и награды' }, { id: 'evo', title: 'Эволюция' }
+    { id: 'state', title: 'Состояния' }, { id: 'react', title: 'Реакции и награды' }, { id: 'evo', title: 'Эволюция' }, { id: 'sport', title: 'Спорт и тренировки' }
   ];
   function def(id, title, group, emoji, dur, loop, desc, build) {
     LIB[id] = { id, title, group, emoji, dur, loop, desc, build }; ORDER.push(id);
@@ -326,6 +326,115 @@
     [['✨', 60, 30], ['⭐', 140, 28], ['✨', 100, 0], ['🌟', 40, 60], ['✨', 160, 62]].forEach((e, i) => c.fx(e[0], { x: e[1], y: e[2], size: 16, dy: -14, delay: 1900 + i * 160, d: 1200 }));
   });
 
+  /* — Спорт: у каждого вида своя анимация — */
+  const HOLD = (fs) => fs;   // для читаемости
+  const wheelSvg = (cx, cy, r, col) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col || '#3b3b44'}" stroke-width="4"/><circle cx="${cx}" cy="${cy}" r="3" fill="${col || '#3b3b44'}"/>` +
+    [0, 45, 90, 135].map(d => { const t = d * Math.PI / 180, dx = Math.cos(t) * r, dy = Math.sin(t) * r; return `<path d="M${(cx - dx).toFixed(1)} ${(cy - dy).toFixed(1)}L${(cx + dx).toFixed(1)} ${(cy + dy).toFixed(1)}" stroke="#7b7b88" stroke-width="1.5"/>`; }).join('');
+  const lift = (y, sx = 1, sy = sx) => X(0, y, 0, sx, sy);
+
+  def('bike', 'Велосипед', 'sport', '🚴', 1600, true, 'Крутит педали, колёса вращаются, ветер в ушах', c => {
+    c.shape('<path d="M52 178L98 178L84 146L52 178M98 178L132 146L84 146M132 146L148 178M132 146L136 134L146 134M84 146L84 138" fill="none" stroke="#e8483f" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="82" cy="136" rx="9" ry="3.6" fill="#3b3b44"/><circle cx="98" cy="178" r="4.4" fill="#ffc83d" stroke="#3b3b44" stroke-width="2"/>', [[0, X()], [1, X()]]);
+    c.shape(wheelSvg(52, 178, 17), [[0, X(0, 0, 0)], [1, X(0, 0, 360)]], { origin: '52px 178px', d: 800 });
+    c.shape(wheelSvg(148, 178, 17), [[0, X(0, 0, 0)], [1, X(0, 0, 360)]], { origin: '148px 178px', d: 800 });
+    c.T('root', [[0, X(0, -16, 0, .92)], [.5, X(0, -18, 0, .92)], [1, X(0, -16, 0, .92)]]); c.T('body', [[0, X(0, 0, 6)], [1, X(0, 0, 6)]]);
+    c.T('fl', [[0, X(0, -9)], [.25, X(9, 0)], [.5, X(0, 9)], [.75, X(-9, 0)], [1, X(0, -9)]]); c.T('fr', [[0, X(0, 9)], [.25, X(-9, 0)], [.5, X(0, -9)], [.75, X(9, 0)], [1, X(0, 9)]]);
+    c.T('al', [[0, X(0, 0, 62)], [.5, X(0, 0, 66)], [1, X(0, 0, 62)]]); c.T('ar', [[0, X(0, 0, -62)], [.5, X(0, 0, -66)], [1, X(0, 0, -62)]]);
+    c.T('ears', wag(2, 6, -8)); c.T('tail', wag(2, 10, 14)); c.T('face', [[0, X(2, 0, 3)], [1, X(2, 0, 3)]]);
+    c.mood(0, 'happy'); c.fx('💨', { x: 18, y: 108, size: 18, dx: -22, dy: -2, d: 800, loop: true }); c.fx('💨', { x: 24, y: 140, size: 14, dx: -22, dy: -2, d: 800, delay: 400, loop: true });
+  });
+
+  def('swim', 'Плавание', 'sport', '🏊', 2400, true, 'Гребёт руками по очереди, вокруг волны и брызги', c => {
+    const wave = n => 'M0 0' + 'q15 -9 30 0t30 0'.repeat(n) + 'V80H-60Z';
+    c.T('root', [[0, X(0, 10, -2)], [.25, X(0, 6, 1)], [.5, X(0, 10, 2)], [.75, X(0, 6, -1)], [1, X(0, 10, -2)]]);
+    c.T('al', [[0, X(0, 0, 0)], [1, X(0, 0, 360)]]); c.T('ar', [[0, X(0, 0, 180)], [1, X(0, 0, 540)]]);
+    c.T('face', [[0, X(0, 0, -5)], [.5, X(0, -1, 5)], [1, X(0, 0, -5)]]); c.T('ears', wag(3, 5)); c.T('tail', wag(3, 12));
+    c.shape(`<path transform="translate(0 150)" d="${wave(5)}" fill="#8fd2f2" opacity=".55"/>`, [[0, X(0, -4)], [1, X(-60, -4)]], { d: 1600, clip: true });
+    c.shape(`<path transform="translate(0 150)" d="${wave(5)}" fill="#5cb8e8" opacity=".88"/><path transform="translate(0 150)" d="M-60 0q15 -9 30 0t30 0q15 -9 30 0t30 0q15 -9 30 0t30 0q15 -9 30 0t30 0q15 -9 30 0t30 0" fill="none" stroke="#d6f2ff" stroke-width="2.4"/>`, [[0, X(0, 4)], [1, X(-60, 4)]], { d: 1200, clip: true });
+    c.mood(0, 'excited'); [0, 1, 2].forEach(i => c.fx('💦', { x: 60 + i * 42, y: 126, size: 14, dy: -22, d: 1100, delay: i * 360, loop: true }));
+  });
+
+  def('yoga', 'Йога', 'sport', '🧘', 5000, true, 'Поза дерева: спокойное дыхание, руки вверх, одна лапа поднята', c => {
+    c.shape('<rect x="34" y="190" width="132" height="8" rx="4" fill="#c9a6f0" stroke="#8c66c2" stroke-width="2.4"/><path d="M44 194h112" stroke="#e6d4fa" stroke-width="2" stroke-linecap="round"/>', [[0, X()], [1, X()]]);
+    c.T('root', [[0, X()], [.2, X(0, -1, 0, 1, 1.01)], [.5, X(0, -3, 0, 1.02, 1.03)], [.8, X(0, -1, 0, 1, 1.01)], [1, X()]]);
+    c.T('fr', [[0, X()], [.15, X(-6, -24, -35)], [.85, X(-6, -24, -35)], [1, X()]]);
+    c.T('al', [[0, X()], [.18, X(0, 0, 168)], [.82, X(0, 0, 168)], [1, X()]]); c.T('ar', [[0, X()], [.18, X(0, 0, -168)], [.82, X(0, 0, -168)], [1, X()]]);
+    c.T('body', [[0, X()], [.3, X(0, 0, 1.4)], [.6, X(0, 0, -1.4)], [1, X()]]); c.T('ears', [[0, X()], [.5, X(0, -2)], [1, X()]]); c.T('tail', wag(2, 4));
+    c.mood(0, 'relaxed'); c.ring(100, 100, '#b58cf0', 800, 2200); c.ring(100, 100, '#e6d4fa', 2000, 2200);
+    [['🌿', 30, 130], ['✨', 170, 100], ['🌸', 160, 150], ['✨', 36, 80]].forEach((e, i) => c.fx(e[0], { x: e[1], y: e[2], size: 14, dy: -18, d: 2400, delay: i * 600, loop: true }));
+  });
+
+  def('warmup', 'Разминка', 'sport', '🤸', 3600, true, 'Круги руками, наклоны головы, повороты корпуса', c => {
+    c.T('al', [[0, X()], [.45, X(0, 0, 360)], [.5, X()], [1, X()]]); c.T('ar', [[0, X()], [.45, X(0, 0, -360)], [.5, X()], [1, X()]]);
+    c.T('body', [[0, X()], [.5, X()], [.6, X(0, 0, -9)], [.72, X(0, 0, 9)], [.84, X(0, 0, -9)], [.94, X()], [1, X()]]);
+    c.T('face', [[0, X()], [.5, X()], [.6, X(-3, 0, -14)], [.72, X(3, 0, 14)], [.84, X(-3, 0, -14)], [.94, X()], [1, X()]]);
+    c.T('root', [[0, X()], [.1, X(0, 2, 0, 1.03, .96)], [.2, X(0, -1, 0, .98, 1.03)], [.3, X(0, 2, 0, 1.03, .96)], [.4, X(0, -1, 0, .98, 1.03)], [.5, X()], [1, X()]]);
+    c.T('ears', wag(4, 5)); c.T('tail', wag(4, 10)); c.mood(0, 'motivated'); c.mood(.5, 'happy');
+    c.fx('⭐', { x: 36, y: 60, size: 12, dy: -14, d: 1800, loop: true }); c.fx('⭐', { x: 164, y: 70, size: 12, dy: -14, d: 1800, delay: 900, loop: true });
+  });
+
+  const BAR = (y) => `<g><rect x="12" y="${y - 3}" width="176" height="6" rx="3" fill="#6f7380"/><rect x="5" y="${y - 22}" width="13" height="44" rx="4" fill="#383c47"/><rect x="18" y="${y - 15}" width="8" height="30" rx="3" fill="#5a5f6d"/><rect x="182" y="${y - 22}" width="13" height="44" rx="4" fill="#383c47"/><rect x="174" y="${y - 15}" width="8" height="30" rx="3" fill="#5a5f6d"/></g>`;
+  def('gym', 'Спортзал: штанга', 'sport', '🏋️', 2800, true, 'Становая тяга: приседает, поднимает штангу до пояса и выпрямляется', c => {
+    c.prop(BAR(160));
+    c.T('prop', [[0, X(0, 24)], [.12, X(0, 24)], [.45, X(0, 0)], [.6, X(0, 0)], [.92, X(0, 24)], [1, X(0, 24)]]);
+    c.T('root', [[0, X(0, 0, 0, 1.08, .8)], [.12, X(0, 0, 0, 1.08, .8)], [.45, X(0, -3, 0, .96, 1.06)], [.6, X(0, -3, 0, .96, 1.06)], [.92, X(0, 0, 0, 1.08, .8)], [1, X(0, 0, 0, 1.08, .8)]]);
+    c.T('body', [[0, X(0, 0, 9)], [.12, X(0, 0, 9)], [.45, X()], [.6, X()], [.92, X(0, 0, 9)], [1, X(0, 0, 9)]]);
+    c.T('al', [[0, X(0, 0, 36)], [.45, X(0, 0, 30)], [.6, X(0, 0, 30)], [1, X(0, 0, 36)]]); c.T('ar', [[0, X(0, 0, -36)], [.45, X(0, 0, -30)], [.6, X(0, 0, -30)], [1, X(0, 0, -36)]]);
+    c.T('face', [[0, X(0, 2, 4)], [.45, X()], [.6, X()], [.92, X(0, 2, 4)], [1, X(0, 2, 4)]]); c.T('tail', wag(2, 8));
+    c.mood(0, 'motivated'); c.mood(.45, 'excited'); c.mood(.7, 'motivated');
+    c.fx('💦', { x: 150, y: 56, size: 14, dy: 16, d: 1400, delay: 1000, loop: true });
+  });
+
+  const KETTLE = '<g><path d="M86 140C86 119 114 119 114 140" fill="none" stroke="#3c3f4a" stroke-width="6.4" stroke-linecap="round"/><circle cx="100" cy="150" r="17" fill="#474b58" stroke="#2b2d36" stroke-width="2.6"/><ellipse cx="93" cy="143" rx="5.4" ry="3.4" fill="#fff" opacity=".28"/><text x="100" y="156" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="sans-serif">16</text></g>';
+  def('kettle', 'Гири', 'sport', '🔔', 1800, true, 'Махи гирей: наклон, толчок бёдрами, гиря взлетает к груди', c => {
+    c.prop(KETTLE);
+    c.T('prop', [[0, X(0, 30)], [.35, X(0, -4, -6)], [.5, X(0, -10, 0)], [.78, X(0, 28, 4)], [1, X(0, 30)]]);
+    c.T('root', [[0, X(0, 2, 0, 1.06, .92)], [.35, X(0, -4, 0, .97, 1.06)], [.5, X(0, -4, 0, .97, 1.06)], [.78, X(0, 1, 0, 1.05, .94)], [1, X(0, 2, 0, 1.06, .92)]]);
+    c.T('body', [[0, X(0, 0, 8)], [.35, X()], [.5, X()], [.78, X(0, 0, 7)], [1, X(0, 0, 8)]]);
+    c.T('al', [[0, X(0, 0, -10)], [.35, X(0, 0, -42)], [.5, X(0, 0, -46)], [.78, X(0, 0, -12)], [1, X(0, 0, -10)]]); c.T('ar', [[0, X(0, 0, 10)], [.35, X(0, 0, 42)], [.5, X(0, 0, 46)], [.78, X(0, 0, 12)], [1, X(0, 0, 10)]]);
+    c.T('face', [[0, X(0, 2, 3)], [.4, X()], [.78, X(0, 2, 3)], [1, X(0, 2, 3)]]); c.T('ears', wag(2, 5)); c.T('tail', wag(2, 8));
+    c.mood(0, 'motivated'); c.mood(.35, 'excited'); c.mood(.7, 'motivated'); c.fx('💦', { x: 156, y: 60, size: 12, dy: 14, d: 1200, loop: true });
+  });
+
+  const BLADES = '<g><path d="M60 197h44M96 197h44" stroke="#b6c2d0" stroke-width="3.6" stroke-linecap="round"/><path d="M68 191v6M92 191v6M108 191v6M132 191v6" stroke="#8d99a8" stroke-width="2.6" stroke-linecap="round"/></g>';
+  def('iceskate', 'Коньки', 'sport', '⛸️', 3200, true, 'Скользит по льду, руки в стороны, за спиной снежок', c => {
+    c.shape('<ellipse cx="100" cy="198" rx="92" ry="7" fill="#d5f0fb" opacity=".8"/><path d="M20 198q40 -4 80 0t80 0" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>', [[0, X()], [1, X()]]);
+    c.prop(BLADES);
+    c.T('root', [[0, X(-18, 0, -7)], [.25, X(0, -1, 0)], [.5, X(18, 0, 7)], [.75, X(0, -1, 0)], [1, X(-18, 0, -7)]]);
+    c.T('fl', [[0, X(-10, -3)], [.5, X(8, 0)], [1, X(-10, -3)]]); c.T('fr', [[0, X(8, 0)], [.5, X(-10, -3)], [1, X(8, 0)]]);
+    c.T('al', [[0, X(0, 0, 58)], [.5, X(0, 0, 32)], [1, X(0, 0, 58)]]); c.T('ar', [[0, X(0, 0, -32)], [.5, X(0, 0, -58)], [1, X(0, 0, -32)]]);
+    c.T('body', [[0, X(0, 0, -5)], [.5, X(0, 0, 5)], [1, X(0, 0, -5)]]); c.T('face', [[0, X(-2, 0, -4)], [.5, X(2, 0, 4)], [1, X(-2, 0, -4)]]);
+    c.T('ears', wag(2, 5)); c.T('tail', wag(2, 12)); c.mood(0, 'happy');
+    [0, 1, 2].forEach(i => c.fx('❄️', { x: 40 + i * 56, y: 150, size: 12, dy: -34, d: 1600, delay: i * 500, loop: true }));
+  });
+
+  const WHEELS = (col) => [66, 80, 118, 132].map((x, i) => `<circle cx="${x}" cy="196" r="3.8" fill="${i % 2 ? '#5ec9c0' : col}" stroke="#3b3b44" stroke-width="1.4"/>`).join('') + '<path d="M62 192h24M114 192h24" stroke="#3b3b44" stroke-width="2.4" stroke-linecap="round"/>';
+  def('roller', 'Роликовые коньки', 'sport', '🛼', 2400, true, 'Катится на роликах: толчок, скольжение, развороты руками', c => {
+    c.prop(WHEELS('#ff6fa5'));
+    c.T('root', [[0, X(-14, 0, -6)], [.25, X(0, -3, 0, .98, 1.03)], [.5, X(14, 0, 6)], [.75, X(0, -3, 0, .98, 1.03)], [1, X(-14, 0, -6)]]);
+    c.T('fl', [[0, X(-12, -2)], [.25, X(0, 0)], [.5, X(8, 0)], [.75, X(0, 0)], [1, X(-12, -2)]]); c.T('fr', [[0, X(8, 0)], [.25, X(0, 0)], [.5, X(-12, -2)], [.75, X(0, 0)], [1, X(8, 0)]]);
+    c.T('al', [[0, X(0, 0, 70)], [.5, X(0, 0, 20)], [1, X(0, 0, 70)]]); c.T('ar', [[0, X(0, 0, -20)], [.5, X(0, 0, -70)], [1, X(0, 0, -20)]]);
+    c.T('body', [[0, X(0, 0, -6)], [.5, X(0, 0, 6)], [1, X(0, 0, -6)]]); c.T('ears', wag(3, 7, -4)); c.T('tail', wag(3, 14));
+    c.mood(0, 'excited'); c.fx('💨', { x: 26, y: 176, size: 16, dx: -20, d: 800, loop: true }); c.fx('⭐', { x: 170, y: 90, size: 12, dy: -16, d: 1600, loop: true });
+  });
+
+  def('rope', 'Скакалка', 'sport', '🪢', 1000, true, 'Прыгает через скакалку, верёвка описывает круг', c => {
+    const h = hops(1, 24);
+    c.T('root', h.r); c.T('shadow', h.s);
+    c.shape('<path d="M42 156C20 28 180 28 158 156" fill="none" stroke="#e8483f" stroke-width="3.4" stroke-linecap="round"/><circle cx="42" cy="156" r="4.4" fill="#3b3b44"/><circle cx="158" cy="156" r="4.4" fill="#3b3b44"/>', [[0, X(0, 0, 0, 1, 1)], [.28, X(0, 0, 0, 1, .15)], [.46, X(0, 0, 0, 1, -.3)], [.68, X(0, 0, 0, 1, .15)], [1, X(0, 0, 0, 1, 1)]], { origin: '100px 156px' });
+    c.T('al', [[0, X(0, 0, 38)], [.5, X(0, 0, 30)], [1, X(0, 0, 38)]]); c.T('ar', [[0, X(0, 0, -38)], [.5, X(0, 0, -30)], [1, X(0, 0, -38)]]);
+    c.T('ears', wag(2, 8)); c.T('tail', wag(2, 12)); c.mood(0, 'excited');
+  });
+
+  const BALL = '<g><circle cx="100" cy="100" r="11" fill="#fff" stroke="#3b3b44" stroke-width="2.2"/><path d="M100 94l5 4l-2 6h-6l-2-6z" fill="#3b3b44"/><path d="M100 94v-4M105 98l4-2M103 104l3 4M97 104l-3 4M95 98l-4-2" stroke="#3b3b44" stroke-width="1.6" stroke-linecap="round"/></g>';
+  def('football', 'Футбол', 'sport', '⚽', 2400, true, 'Жонглирует мячом: подбрасывает ногами, ловит головой', c => {
+    c.shape(BALL, [[0, X(22, 78, 0)], [.25, X(0, -86, 360)], [.5, X(-22, 78, 720)], [.75, X(0, -86, 1080)], [1, X(22, 78, 1440)]], { origin: '100px 100px' });
+    c.T('fr', [[0, X(8, -12, 25)], [.1, X(2, -4, 10)], [.2, X()], [.8, X()], [.9, X(8, -12, 25)], [1, X(8, -12, 25)]]); c.T('fl', [[0, X()], [.4, X()], [.5, X(-8, -12, -25)], [.6, X(-2, -4, -10)], [.7, X()], [1, X()]]);
+    c.T('root', [[0, X()], [.1, X(0, 0, 0, 1.04, .95)], [.25, X(0, -4, 0, .97, 1.05)], [.4, X()], [.5, X(0, 0, 0, 1.04, .95)], [.75, X(0, -4, 0, .97, 1.05)], [1, X()]]);
+    c.T('face', [[0, X(0, 0, -5)], [.25, X(0, -3, 0)], [.5, X(0, 0, 5)], [.75, X(0, -3, 0)], [1, X(0, 0, -5)]]);
+    c.T('al', [[0, X(0, 0, 45)], [.5, X(0, 0, 25)], [1, X(0, 0, 45)]]); c.T('ar', [[0, X(0, 0, -25)], [.5, X(0, 0, -45)], [1, X(0, 0, -25)]]); c.T('tail', wag(2, 10));
+    c.mood(0, 'excited');
+  });
+
   /* ---------- Контекст построения ---------- */
   function setFace(svg, m) { const t = svg.querySelector('.p-facedyn'); if (t && P && P.face) t.innerHTML = P.face(svg.dataset.sp, m); }
   function setProp(svg, html) { const p = svg.querySelector('.p-prop'); if (p) p.innerHTML = html; }
@@ -350,10 +459,11 @@
       shape(html, frames, o) {   // своя картинка поверх питомца (скорлупа, корона, вспышка)
         if (st.still) return null;
         o = o || {}; const layer = svg.querySelector('.p-fx'); if (!layer) return null;
-        const gEl = document.createElementNS(NS, 'g'); gEl.innerHTML = html; gEl.style.transformOrigin = o.origin || '100px 100px'; gEl.style.opacity = 0; layer.appendChild(gEl);
+        const gEl = document.createElementNS(NS, 'g'); gEl.innerHTML = html; gEl.style.transformOrigin = o.origin || '100px 100px'; gEl.style.opacity = 0;
+        if (o.clip) { const w = document.createElementNS(NS, 'svg'); w.setAttribute('x', 0); w.setAttribute('y', -26); w.setAttribute('width', 200); w.setAttribute('height', 226); w.setAttribute('viewBox', '0 -26 200 226'); w.style.overflow = 'hidden'; w.appendChild(gEl); layer.appendChild(w); } else layer.appendChild(gEl);
         let prev = 0;
         const kf = frames.map(f => { prev = Math.max(prev, Math.min(1, f[0])); return { offset: prev, transform: f[1], opacity: f[2] == null ? 1 : f[2], easing: SOFT }; });
-        const an = gEl.animate(kf, { duration: o.d || def.dur, iterations: 1, easing: 'linear', fill: 'both' });
+        const an = gEl.animate(kf, { duration: o.d || def.dur, iterations: (loop || o.loop) ? Infinity : 1, easing: 'linear', fill: 'both' });
         an.playbackRate = st.speed; st.anims.push(an); return an;
       },
       cue(f, fn) { st.cues.push([f, fn]); },

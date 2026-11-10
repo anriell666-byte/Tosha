@@ -475,13 +475,13 @@
 
   /* ---------- Состояние ---------- */
   function fresh() {
-    return { v: 1, pet: 'hamster', petChosen: false, petsTried: ['hamster'], flags: { taps: 0 }, ach: {}, xp: 0, days: {}, fired: {}, notifLog: {}, lastMoveAt: Date.now(), current: null, reroll: 0, custom: { quests: [], phrases: [], colors: {} }, settings: C.defaultSettings() };
+    return { v: 1, pet: 'hamster', petChosen: false, petsTried: ['hamster'], flags: { taps: 0 }, ach: {}, xp: 0, days: {}, fired: {}, notifLog: {}, lastMoveAt: Date.now(), current: null, reroll: 0, custom: { quests: [], phrases: [], colors: {}, workouts: [] }, settings: C.defaultSettings() };
   }
   function migrate(o) {
     const base = fresh(), def = C.defaultSettings();
     const s = Object.assign(def, o.settings || {});
     if (!Array.isArray(s.meals) || !s.meals.length) s.meals = C.defaultSettings().meals;
-    const cu = Object.assign({ quests: [], phrases: [], colors: {} }, o.custom || {});
+    const cu = Object.assign({ quests: [], phrases: [], colors: {}, workouts: [] }, o.custom || {});
     const r = Object.assign(base, o, { settings: s, custom: cu });
     const SP = (window.ToshaPets && window.ToshaPets.SPECIES) || {};
     if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком
@@ -543,8 +543,8 @@
     if (!window.indexedDB) return;
     C.idbSet('snapshot', C.buildCtx(S, new Date())).catch(() => {});
   }
-  const getDay = k => S.days[k || todayKey()] || { meals: [], water: 0, quests: [] };
-  const day = () => { const k = todayKey(); return S.days[k] || (S.days[k] = { meals: [], water: 0, quests: [] }); };
+  const getDay = k => S.days[k || todayKey()] || { meals: [], water: 0, quests: [], workouts: [] };
+  const day = () => { const k = todayKey(); const d = S.days[k] || (S.days[k] = { meals: [], water: 0, quests: [], workouts: [] }); if (!d.workouts) d.workouts = []; return d; };
   const kcalOf = d => d.meals.reduce((a, m) => a + m.kcal, 0);
   const allQuests = () => C.QUESTS.concat(S.custom.quests);
   const qById = id => C.questById(id, allQuests());
@@ -568,10 +568,12 @@
   }
   function go(tab) {
     if (tab !== 'ws' && AN) { const w = $('#wsStage .pet-svg'); if (w) AN.stop(w); }
+    if (tab !== 'sport' && AN) { const w = $('#sportStage .pet-svg'); if (w) AN.stop(w); }
     $$('.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + tab));
     $$('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     window.scrollTo(0, 0);
     if (tab === 'ws') renderWorkshop();
+    if (tab === 'sport') { sportKey = ''; renderSport(); }
   }
 
   /* ---------- Питомец ---------- */
@@ -604,7 +606,7 @@
     const svg = curSvg(), name = pendingReact; pendingReact = null;
     if (name && name === levelUp) levelUp = false;
     if (!svg || !AN) return;
-    if (name) AN.play(svg, name);
+    if (name) AN.play(svg, name, AN.LIB[name] && AN.LIB[name].group === 'sport' ? { loop: false } : undefined);
     else if (autoAnim) { const a = autoAnim; autoAnim = null; AN.play(svg, a, { for: 9000 }); }
   }
   function renderPet() {
@@ -753,6 +755,90 @@
           <button class="x" data-act="delEntry" data-id="${m.id}" aria-label="Удалить запись">×</button></div>`).join('')
       : '<p class="muted">Здесь появятся записи за сегодня.</p>';
   }
+
+
+  /* ---------- Тренировки ---------- */
+  /* Справочник видов спорта: id, эмодзи, название, анимация питомца, MET (нагрузка). Свои виды добавляются на вкладке «Спорт». */
+  const SPORTS = [
+    ['walk', '🚶', 'Ходьба', 'walk', 3.5], ['fastwalk', '🚶‍♀️', 'Быстрая ходьба', 'walk', 4.8], ['run', '🏃', 'Бег', 'run', 9],
+    ['bike', '🚴', 'Велосипед', 'bike', 7], ['swim', '🏊', 'Плавание', 'swim', 6], ['yoga', '🧘', 'Йога', 'yoga', 2.5],
+    ['warmup', '🤸', 'Разминка', 'warmup', 3], ['stretch', '🙆', 'Растяжка', 'stretch', 2.3], ['gym', '🏋️', 'Спортзал (штанга)', 'gym', 5],
+    ['kettle', '🔔', 'Гири', 'kettle', 8], ['iceskate', '⛸️', 'Коньки', 'iceskate', 7], ['roller', '🛼', 'Роликовые коньки', 'roller', 7],
+    ['rope', '🪢', 'Скакалка', 'rope', 11], ['squats', '🦵', 'Приседания', 'squats', 5], ['dance', '💃', 'Танцы', 'dance', 5],
+    ['football', '⚽', 'Футбол', 'football', 7], ['basket', '🏀', 'Баскетбол', 'jump', 6.5], ['volley', '🏐', 'Волейбол', 'jump', 4],
+    ['tennis', '🎾', 'Теннис', 'jump', 7], ['hike', '🥾', 'Поход', 'walk', 6], ['stairs', '🪜', 'Подъём по лестнице', 'walk', 6],
+    ['ski', '🎿', 'Лыжи', 'iceskate', 7.5], ['aerobics', '🤾', 'Аэробика', 'dance', 6.5], ['hiit', '⚡', 'Интервальная тренировка', 'jump', 8]
+  ];
+  const CW_EMOJI = ['🏅', '🏃', '🚴', '🏊', '🧘', '🏋️', '⚽', '🎾', '🏓', '🥊', '🧗', '🏄', '🤸', '💃', '🛹', '🎯'];
+  const CW_ANIMS = [['run', 'Бег'], ['walk', 'Ходьба'], ['bike', 'Велосипед'], ['swim', 'Плавание'], ['yoga', 'Йога'], ['warmup', 'Разминка'], ['stretch', 'Растяжка'], ['gym', 'Штанга'], ['kettle', 'Гири'], ['iceskate', 'Коньки'], ['roller', 'Ролики'], ['rope', 'Скакалка'], ['squats', 'Приседания'], ['dance', 'Танцы'], ['football', 'Мяч'], ['jump', 'Прыжки']];
+  const kgOf = () => Math.min(250, Math.max(30, Number(S.settings.weight) || 65));
+  const allSports = () => SPORTS.map(s => ({ id: s[0], emoji: s[1], name: s[2], anim: s[3], kcalMin: s[4] * kgOf() * 0.0175 }))
+    .concat(S.custom.workouts.map(w => ({ id: w.id, emoji: w.emoji, name: w.name, anim: w.anim, kcalMin: w.kcalMin, own: true })));
+  const sportById = id => allSports().find(s => s.id === id);
+  let sportSel = 'walk', kcalManual = false, sportKey = '';
+  const wKcalFor = (sp, min) => Math.round(sp.kcalMin * min);
+  function playSport() {
+    const svg = $('#sportStage .pet-svg'), sp = sportById(sportSel);
+    if (svg && AN && sp) AN.play(svg, sp.anim, { loop: true });
+  }
+  function recalcW() {
+    const sp = sportById(sportSel), min = Number($('#wMin').value);
+    if (sp && min > 0 && !kcalManual) $('#wKcal').value = wKcalFor(sp, min);
+    $('#wHint').textContent = sp ? '≈ ' + Math.round(sp.kcalMin * 10) / 10 + ' ккал в минуту при весе ' + kgOf() + ' кг. Это ориентир, не точный счётчик.' : '';
+  }
+  function renderSport() {
+    if (!sportById(sportSel)) sportSel = 'walk';
+    const sp = sportById(sportSel), lvl = Math.max(2, C.level(S.xp));
+    const key = [S.pet, sportSel, lvl, JSON.stringify(colorsOf(S.pet) || '')].join('|');
+    if (key !== sportKey) {
+      sportKey = key;
+      $('#sportStage').innerHTML = petSvg(S.pet, 'happy', lvl, { label: S.settings.petName });
+      playSport();
+    }
+    const d = AN && AN.LIB[sp.anim];
+    $('#sportName').textContent = sp.emoji + ' ' + sp.name;
+    $('#sportDesc').textContent = d ? d.desc : '';
+    $('#sportChips').innerHTML = allSports().map(s => `<button type="button" class="chip sp ${s.id === sportSel ? 'on' : ''}" data-act="sportPick" data-id="${esc(s.id)}">${esc(s.emoji)} ${esc(s.name)}</button>`).join('');
+    $('#wMinChips').innerHTML = [10, 15, 20, 30, 45, 60].map(v => `<button type="button" class="chip" data-act="wMinChip" data-v="${v}">${v} мин</button>`).join('');
+    recalcW();
+    const ws = getDay().workouts || [], tm = ws.reduce((a, w) => a + w.min, 0), tk = ws.reduce((a, w) => a + (w.kcal || 0), 0);
+    $('#wToday').innerHTML = ws.length
+      ? ws.slice().sort((a, b) => a.ts - b.ts).map(w => `<div class="entry"><span class="t">${new Date(w.ts).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span><span class="n">${esc(w.emoji || '🏅')} ${esc(w.name)} · ${w.min} мин</span><span class="k">${w.kcal || 0}</span><button class="x" data-act="delWorkout" data-id="${w.id}" aria-label="Удалить тренировку">×</button></div>`).join('') +
+        `<p class="muted small" style="margin-top:8px">Итого: ${tm} мин · ≈ ${tk} ккал потрачено. Из дневной нормы калории не вычитаются.</p>`
+      : '<p class="muted">Сегодня пока без тренировок. Лёгкая прогулка тоже считается.</p>';
+    const bars = []; let mx = 30;
+    for (let i = 6; i >= 0; i--) { const dd = new Date(Date.now() - i * 864e5), k = C.dayKey(dd), m = ((S.days[k] || {}).workouts || []).reduce((a, w) => a + w.min, 0); mx = Math.max(mx, m); bars.push({ dd, m, today: i === 0 }); }
+    $('#wWeek').innerHTML = `<div class="wbars">${bars.map(b => `<div class="${b.today ? 'on' : ''}"><b>${b.m || ''}</b><i style="height:${Math.max(4, Math.round(b.m / mx * 70))}px"></i>${b.dd.toLocaleDateString('ru-RU', { weekday: 'short' })}</div>`).join('')}</div>
+      <p class="muted small">Минут движения за день. За неделю: ${bars.reduce((a, b) => a + b.m, 0)} мин.</p>`;
+    $('#cwEmoji').innerHTML = CW_EMOJI.map(e => `<option>${e}</option>`).join('');
+    if (!$('#cwAnim').options.length) $('#cwAnim').innerHTML = CW_ANIMS.map(a => `<option value="${a[0]}">${a[1]}</option>`).join('');
+    $('#custList').innerHTML = S.custom.workouts.length
+      ? S.custom.workouts.map(w => `<div class="entry"><span class="n">${esc(w.emoji)} ${esc(w.name)}</span><span class="k">${Math.round(w.kcalMin * 10) / 10}/мин</span><button class="x" data-act="cwDel" data-id="${w.id}" aria-label="Удалить вид тренировки">×</button></div>`).join('')
+      : '';
+    const wt = $('[data-s="weight"]'); if (wt && document.activeElement !== wt) wt.value = S.settings.weight;
+  }
+  $('#wMin').addEventListener('input', recalcW);
+  $('#wKcal').addEventListener('input', () => { kcalManual = $('#wKcal').value !== ''; });
+  $('#sportForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const sp = sportById(sportSel), min = Math.round(Number($('#wMin').value));
+    if (!sp || !(min > 0 && min <= 600)) { toast('Укажи минуты от 1 до 600'); return; }
+    const k = Math.round(Number($('#wKcal').value));
+    const d = day();
+    d.workouts.push({ id: uid(), ts: Date.now(), act: sp.id, name: sp.name, emoji: sp.emoji, min, kcal: k >= 0 && $('#wKcal').value !== '' ? k : wKcalFor(sp, min) });
+    if (d.workouts.length <= 3) addXp(Math.min(40, Math.max(5, Math.round(min / 2)))); else toast('Записано. Молодец!');
+    $('#wMin').value = ''; $('#wKcal').value = ''; kcalManual = false;
+    react(sp.anim); save(); renderAll(); playSport();
+  });
+  $('#custForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#cwName').value.trim().slice(0, 24), kcalMin = Number($('#cwKcal').value);
+    if (!name || !(kcalMin > 0 && kcalMin <= 30)) { toast('Введи название и ккал в минуту'); return; }
+    const id = 'w_' + uid();
+    S.custom.workouts.push({ id, emoji: $('#cwEmoji').value, name, anim: $('#cwAnim').value, kcalMin });
+    sportSel = id; $('#cwName').value = ''; $('#cwKcal').value = '';
+    save(); sportKey = ''; renderSport(); renderAch(); toast('Тренировка добавлена');
+  });
 
   /* ---------- Достижения ---------- */
   let inAch = false; const achOpen = {};
@@ -948,6 +1034,10 @@
     gramsMul(t) { if (!foodSel) return; const g = Math.max(1, Math.round(foodSel.g * Number(t.dataset.m))); $('#fGrams').value = g; calcFromGrams(); },
     refChip(t) { const r = REFS[+t.dataset.i]; clearFoodSel(); $('#fName').value = r[0].replace(/^\S+\s/, ''); $('#fKcal').value = r[1]; },
     recentChip(t) { const r = recent[+t.dataset.i]; if (r) { clearFoodSel(); $('#fName').value = r.name; $('#fKcal').value = r.kcal; } },
+    sportPick(t) { sportSel = t.dataset.id; kcalManual = false; $('#wKcal').value = ''; sportKey = ''; renderSport(); },
+    wMinChip(t) { $('#wMin').value = t.dataset.v; kcalManual = false; recalcW(); },
+    delWorkout(t) { const d = day(); d.workouts = d.workouts.filter(w => w.id !== t.dataset.id); save(); renderAll(); toast('Запись удалена'); },
+    cwDel(t) { S.custom.workouts = S.custom.workouts.filter(w => w.id !== t.dataset.id); if (sportSel === t.dataset.id) sportSel = 'walk'; sportKey = ''; save(); renderSport(); },
     delEntry(t) { const d = day(); d.meals = d.meals.filter(m => m.id !== t.dataset.id); save(); renderAll(); toast('Запись удалена'); },
     askPerm,
     async testNotif() {
@@ -1094,7 +1184,7 @@
   });
 
   /* ---------- Запуск ---------- */
-  function renderAll() { renderPet(); renderPicker(); renderPerm(); renderQuest(); renderFoodMini(); renderWater(); renderWeek(); renderFood(); renderAch(); renderThemeUi(); }
+  function renderAll() { renderPet(); renderPicker(); renderPerm(); renderQuest(); renderFoodMini(); renderWater(); renderWeek(); renderFood(); renderAch(); renderThemeUi(); if ($('#tab-sport').classList.contains('active')) renderSport(); }
   function navTo(d) {
     if (d.kind === 'meal') { if (d.mealId) mealSel = d.mealId; go('food'); renderFood(); }
     else if (d.kind === 'summary') go('food');
