@@ -67,22 +67,20 @@
 
   const whisk = (y, spread) => [0, 1, 2].map(i => `<path d="M72 ${y + i * 4}L${72 - spread} ${y - 5 + i * 8}M128 ${y + i * 4}L${128 + spread} ${y - 5 + i * 8}" stroke="${INK}" stroke-width="1.7" stroke-linecap="round" opacity=".42"/>`).join('');
 
-  /* ---------- Обновлённые виды персонажей (в стиле пастельных чиби-карточек) ---------- */
+  /* ---------- Точные персонажи под пастельные карточки ---------- */
   const SPECIES = {
     fox: {
       title: 'Лисёнок', name: 'Рыжик', k: 0.96, w: true, iris: '#4a2c1d', my: 2,
       c: { pet: '#f59b56', light: '#fff8f0', edge: '#8c4a27', cheek: '#ffb3b3' },
       headPath: 'M100 34C126 34 148 48 154 72C160 94 144 114 100 116C56 114 40 94 46 72C52 48 74 34 100 34Z',
-      ears: () => g('a-ear-l', '70px 54px', `<path d="M46 72C40 42 46 14 58 8C72 14 86 30 94 44Z" fill="var(--pet)" ${E}/><path d="M54 62C50 42 54 22 60 18C68 22 76 34 82 44Z" fill="#fff2e6"/>`) +
-        g('a-ear-r', '130px 54px', `<path d="M154 72C160 42 154 14 142 8C128 14 114 30 106 44Z" fill="var(--pet)" ${E}/><path d="M146 62C150 42 146 22 140 18C132 22 124 34 118 44Z" fill="#fff2e6"/>`),
-      headDeco: () => '<path d="M92 35q8 -7 16 0q-4 7 -8 5q-4 2 -8 -5z" fill="#f59b56"/>' +
-        '<path d="M44 76C64 90 82 94 100 94C118 94 136 90 156 76L156 126L44 126Z" fill="var(--pet-light)"/>',
-      headFront: () => `<path d="M48 84l-9 4 9 3-7 6 12-1z" fill="var(--pet-light)" ${E}/><path d="M152 84l9 4-9 3 7 6-12-1z" fill="var(--pet-light)" ${E}/>`,
-      bodyDeco: () => '<ellipse cx="100" cy="150" rx="25" ry="33" fill="var(--pet-light)"/>',
-      neck: k => `<path d="M${Math.round(100 - 38 * k)} 110Q100 132 ${Math.round(100 + 38 * k)} 110L100 144Z" fill="#8bc34a" stroke="#558b2f" stroke-width="2.4" stroke-linejoin="round"/><circle cx="100" cy="126" r="3.5" fill="#fff9c4"/>`,
+      ears: () => g('a-ear-l', '70px 54px', `<path d="M46 72C40 42 46 14 58 8C72 14 86 30 94 44Z" fill="#f59b56" ${E}/><path d="M54 62C50 42 54 22 60 18C68 22 76 34 82 44Z" fill="#ffd1b3"/>`) +
+        g('a-ear-r', '130px 54px', `<path d="M154 72C160 42 154 14 142 8C128 14 114 30 106 44Z" fill="#f59b56" ${E}/><path d="M146 62C150 42 146 22 140 18C132 22 124 34 118 44Z" fill="#ffd1b3"/>`),
+      headDeco: () => '<path d="M44 76C64 90 82 94 100 94C118 94 136 90 156 76L156 126L44 126Z" fill="#fff8f0"/>',
+      bodyDeco: () => '<ellipse cx="100" cy="150" rx="25" ry="33" fill="#fff8f0"/>',
+      neck: () => '<path d="M72 110Q100 128 128 110L134 130Q100 148 66 130Z" fill="#7bc67d" stroke="#4a8a4c" stroke-width="2.2" stroke-linejoin="round"/><circle cx="100" cy="122" r="3" fill="#fff"/>',
       back: (lvl, id) => g('a-tail', '128px 172px',
         `<clipPath id="${id}t"><path d="M128 178C168 198 204 156 188 106C182 100 174 102 170 110C164 132 148 148 126 154Z"/></clipPath>` +
-        `<path d="M128 178C168 198 204 156 188 106C182 100 174 102 170 110C164 132 148 148 126 154Z" fill="var(--pet)"/>` +
+        `<path d="M128 178C168 198 204 156 188 106C182 100 174 102 170 110C164 132 148 148 126 154Z" fill="#f59b56"/>` +
         `<g clip-path="url(#${id}t)"><path d="M158 82L218 82L218 128Q190 118 162 134Z" fill="#fff8f0"/></g>` +
         `<path d="M128 178C168 198 204 156 188 106C182 100 174 102 170 110C164 132 148 148 126 154Z" fill="none" ${E}/>`),
       foot: '#6b3e26', paw: '#6b3e26', arm: '#f59b56',
@@ -91,32 +89,30 @@
     },
     bunny: {
       title: 'Кролик', name: 'Пушок', k: 0.95, w: true, iris: '#3d346b', my: 1,
-      c: { pet: '#cbe0fa', light: '#ffffff', edge: '#6d88b5', cheek: '#ffb8d1' },
+      c: { pet: '#d6e7ff', light: '#ffffff', edge: '#6e8fc4', cheek: '#ffb8d1' },
       headPath: 'M100 36C132 36 150 54 150 80C150 104 132 118 100 118C68 118 50 104 50 80C50 54 68 36 100 36Z',
-      ears: () => g('a-ear-l', '76px 54px', `<g transform="rotate(-10 76 54)"><path d="M68 54C55 30 56 2 67 -14C77 -18 86 -4 88 16C90 31 89 43 87 56Z" fill="#ffffff" ${E}/><path d="M71 46C64 28 65 10 70 -3C76 -5 81 8 83 21C84 32 83 40 82 48Z" fill="#ffd1dc"/></g>`) +
-        g('a-ear-r', '124px 54px', `<g transform="rotate(10 124 54)"><path d="M132 54C145 30 144 2 133 -14C123 -18 114 -4 112 16C110 31 111 43 113 56Z" fill="var(--pet)" ${E}/><path d="M129 46C136 28 135 10 130 -3C124 -5 119 8 117 21C116 32 117 40 118 48Z" fill="#ffd1dc"/></g>`),
-      headDeco: () => '<path d="M48 34h52v88H48z" fill="#ffffff"/>',
+      ears: () => g('a-ear-l', '76px 54px', `<g transform="rotate(-12 76 54)"><path d="M68 54C54 28 56 -2 68 -16C78 -20 88 -4 90 16C92 32 90 44 87 56Z" fill="#d6e7ff" ${E}/><path d="M72 44C65 26 66 8 71 -4C77 -6 82 8 84 21C85 32 84 40 82 48Z" fill="#ffb8d1"/></g>`) +
+        g('a-ear-r', '124px 54px', `<g transform="rotate(12 124 54)"><path d="M132 54C146 28 144 -2 132 -16C122 -20 112 -4 110 16C108 32 110 44 113 56Z" fill="#d6e7ff" ${E}/><path d="M128 44C135 26 134 8 129 -4C123 -6 118 8 116 21C115 32 116 40 118 48Z" fill="#ffb8d1"/></g>`),
+      headDeco: () => '<path d="M74 36C86 36 94 48 94 62C94 76 86 88 74 88C62 88 54 76 54 62C54 48 62 36 74 36Z" fill="#ffffff" opacity=".85"/>',
       bodyDeco: () => '<ellipse cx="100" cy="152" rx="26" ry="31" fill="#ffffff"/>',
-      neck: k => `<path d="M${Math.round(100 - 34 * k)} 110Q100 124 ${Math.round(100 + 34 * k)} 110" fill="none" stroke="#64b5f6" stroke-width="6" stroke-linecap="round"/>` +
-        '<path d="M100 118l-14 -8v16zM100 118l14 -8v16z" fill="#90caf9" stroke="#42a5f5" stroke-width="2" stroke-linejoin="round"/><circle cx="100" cy="118" r="4.5" fill="#e3f2fd" stroke="#42a5f5" stroke-width="2"/>',
+      neck: () => '<path d="M76 110q24 16 48 0l6 14q-30 12-60 0z" fill="#7ea6e0" stroke="#4a73b0" stroke-width="2.2" stroke-linejoin="round"/><circle cx="100" cy="123" r="4" fill="#ffffff"/>',
       back: () => g('a-tail', '140px 178px', `<circle cx="142" cy="178" r="13" fill="#ffffff" ${E}/>`),
-      foot: '#ffffff', paw: '#ffffff', footRx: 20,
+      foot: '#d6e7ff', paw: '#ffb8d1', footRx: 20,
       under: none,
-      over: () => '<ellipse cx="100" cy="88" rx="4" ry="2.8" fill="#f48fb1"/>'
+      over: () => '<ellipse cx="100" cy="88" rx="4" ry="2.8" fill="#ff8fa3"/>'
     },
     deer: {
       title: 'Оленёнок', name: 'Бэмби', k: 0.94, w: false, iris: '#4e2e1e', my: 1,
-      c: { pet: '#e3a574', light: '#fff6eb', edge: '#855232', cheek: '#ffad99' },
+      c: { pet: '#e8a87c', light: '#fff5ec', edge: '#8c5230', cheek: '#ffad99' },
       headPath: 'M100 38C132 38 148 56 148 82C148 104 130 118 100 118C70 118 52 104 52 82C52 56 68 38 100 38Z',
-      ears: () => g('a-ear-l', '64px 56px', `<path d="M54 64C34 56 26 42 32 34C42 32 56 42 66 52Z" fill="var(--pet)" ${E}/><path d="M52 58C40 52 34 44 38 40C44 39 52 46 58 52Z" fill="#ffd6cc"/>`) +
-        g('a-ear-r', '136px 56px', `<path d="M146 64C166 56 174 42 168 34C158 32 144 42 134 52Z" fill="var(--pet)" ${E}/><path d="M148 58C160 52 166 44 162 40C156 39 148 46 142 52Z" fill="#ffd6cc"/>`) +
-        `<path d="M78 40L72 14M74 26L62 20M76 20L84 12M122 40L128 14M126 26L138 20M124 20L116 12" stroke="#855232" stroke-width="4.5" stroke-linecap="round" fill="none"/>`,
-      headDeco: () => '<ellipse cx="100" cy="96" rx="28" ry="20" fill="var(--pet-light)"/><circle cx="100" cy="54" r="3" fill="#fff6eb" opacity=".8"/><circle cx="90" cy="58" r="2.2" fill="#fff6eb" opacity=".8"/><circle cx="110" cy="58" r="2.2" fill="#fff6eb" opacity=".8"/>',
-      bodyDeco: () => '<ellipse cx="100" cy="152" rx="24" ry="30" fill="var(--pet-light)"/><circle cx="72" cy="138" r="3" fill="#fff6eb"/><circle cx="128" cy="138" r="3" fill="#fff6eb"/><circle cx="70" cy="150" r="2.5" fill="#fff6eb"/><circle cx="130" cy="150" r="2.5" fill="#fff6eb"/>',
-      neck: k => `<path d="M${Math.round(100 - 36 * k)} 110Q100 126 ${Math.round(100 + 36 * k)} 110" fill="none" stroke="#81c784" stroke-width="7" stroke-linecap="round"/>` +
-        '<circle cx="84" cy="116" r="4" fill="#fff"/><circle cx="100" cy="120" r="4.5" fill="#fff59d"/><circle cx="116" cy="116" r="4" fill="#fff"/>',
-      back: () => g('a-tail', '134px 174px', `<path d="M132 174q16 -8 18 6q-10 8 -18 -6z" fill="#fff6eb" ${E}/>`),
-      foot: '#6e4023', paw: '#6e4023',
+      ears: () => g('a-ear-l', '64px 56px', `<path d="M54 64C34 56 24 40 30 32C42 30 56 42 66 52Z" fill="#e8a87c" ${E}/><path d="M52 58C40 50 32 42 36 38C42 37 52 44 58 52Z" fill="#ffd6cc"/>`) +
+        g('a-ear-r', '136px 56px', `<path d="M146 64C166 56 176 40 170 32C158 30 144 42 134 52Z" fill="#e8a87c" ${E}/><path d="M148 58C160 50 168 42 164 38C158 37 148 44 142 52Z" fill="#ffd6cc"/>`) +
+        `<path d="M78 40L72 14M74 26L62 20M76 20L84 12M122 40L128 14M126 26L138 20M124 20L116 12" stroke="#8c5230" stroke-width="4.2" stroke-linecap="round" fill="none"/>`,
+      headDeco: () => '<ellipse cx="100" cy="96" rx="28" ry="20" fill="#fff5ec"/><circle cx="100" cy="54" r="3" fill="#fff5ec"/><circle cx="88" cy="60" r="2.2" fill="#fff5ec"/><circle cx="112" cy="60" r="2.2" fill="#fff5ec"/>',
+      bodyDeco: () => '<ellipse cx="100" cy="152" rx="24" ry="30" fill="#fff5ec"/><circle cx="72" cy="138" r="3.2" fill="#fff5ec"/><circle cx="128" cy="138" r="3.2" fill="#fff5ec"/><circle cx="70" cy="150" r="2.6" fill="#fff5ec"/><circle cx="130" cy="150" r="2.6" fill="#fff5ec"/>',
+      neck: () => '<path d="M74 110q26 14 52 0l4 14q-30 12-60 0z" fill="#7bc67d" stroke="#4a8a4c" stroke-width="2.2" stroke-linejoin="round"/><circle cx="100" cy="122" r="3.5" fill="#fff"/>',
+      back: () => g('a-tail', '134px 174px', `<path d="M132 174q16 -8 18 6q-10 8 -18 -6z" fill="#fff5ec" ${E}/>`),
+      foot: '#8c5230', paw: '#8c5230',
       under: none,
       over: () => '<ellipse cx="100" cy="88" rx="4.5" ry="3" fill="#4e2e1e"/>'
     },
@@ -128,13 +124,13 @@
         `<path d="M68 44C56 32 56 14 64 4C70 16 78 28 88 36Z" fill="#fff5ba" ${E}/><path d="M132 44C144 32 144 14 136 4C130 16 122 28 112 36Z" fill="#fff5ba" ${E}/>` +
         `<path d="M92 36L96 22L101 34L106 22L109 36Z" fill="#8be0cd" ${E}/>`,
       headDeco: () => '<ellipse cx="100" cy="99" rx="28" ry="18" fill="#c7f5eb"/><circle cx="72" cy="58" r="2.8" fill="#52b5a2" opacity=".6"/><circle cx="128" cy="58" r="2.8" fill="#52b5a2" opacity=".6"/>',
-      bodyDeco: () => '<ellipse cx="100" cy="152" rx="28" ry="31" fill="var(--pet-light)"/><path d="M78 136q22 7 44 0M76 148q24 8 48 0M78 160q22 8 44 0" fill="none" stroke="#9adbc9" stroke-width="2.2" stroke-linecap="round"/>',
+      bodyDeco: () => '<ellipse cx="100" cy="152" rx="28" ry="31" fill="#e8fbf7"/><path d="M78 136q22 7 44 0M76 148q24 8 48 0M78 160q22 8 44 0" fill="none" stroke="#9adbc9" stroke-width="2.2" stroke-linecap="round"/>',
       back: () => g('a-tail', '128px 176px',
-        '<path d="M128 176C160 188 184 172 182 146" fill="none" stroke="var(--edge)" stroke-width="21" stroke-linecap="round"/><path d="M128 176C160 188 184 172 182 146" fill="none" stroke="var(--pet)" stroke-width="15" stroke-linecap="round"/>' +
+        '<path d="M128 176C160 188 184 172 182 146" fill="none" stroke="#3d8f80" stroke-width="21" stroke-linecap="round"/><path d="M128 176C160 188 184 172 182 146" fill="none" stroke="#8be0cd" stroke-width="15" stroke-linecap="round"/>' +
         `<path d="M174 148L182 128L190 148Z" fill="#fff5ba" ${E}/>`) +
         g('a-wing-l', '70px 124px', `<path d="M72 124C42 110 16 88 8 56C24 66 34 64 42 62C39 77 52 87 62 93C58 103 66 114 76 128Z" fill="#d4f7ee" stroke="#52b5a2" stroke-width="3" stroke-linejoin="round"/>`) +
         g('a-wing-r', '130px 124px', `<path d="M128 124C158 110 184 88 192 56C176 66 166 64 158 62C161 77 148 87 138 93C142 103 134 114 124 128Z" fill="#d4f7ee" stroke="#52b5a2" stroke-width="3" stroke-linejoin="round"/>`),
-      foot: 'var(--pet)', paw: '#fff5ba',
+      foot: '#8be0cd', paw: '#fff5ba',
       under: none,
       over: () => '<circle cx="95" cy="91" r="2" fill="#3d8f80"/><circle cx="105" cy="91" r="2" fill="#3d8f80"/>'
     }
