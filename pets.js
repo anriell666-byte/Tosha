@@ -28,6 +28,13 @@ const S={
   body:'<ellipse cx="100" cy="158" rx="34" ry="35" fill="var(--pet-light)"/>',
   tail:()=>g('a-tail','145px 176px',`<circle cx="147" cy="178" r="14" fill="#fff5f1" ${E}/>`),
   extra:'<path d="M68 145Q100 165 132 145" fill="none" stroke="#e7b6b3" stroke-width="3"/>',paw:'#f3a3b2'},
+ deer:{title:'Оленёнок',name:'Бэмби',c:{pet:'#d99a6d',light:'#fff3e7',edge:'#8d5738',cheek:'#f3a0a0'},iris:'#493027',k:.96,
+  ears:()=>g('a-ear-l','62px 59px',`<path d="M66 70Q39 65 27 42Q22 31 35 31Q55 34 77 56Z" fill="var(--pet)" ${E}/><path d="M61 61Q43 55 34 40Q45 39 65 57Z" fill="#f7c5b8"/>`)+g('a-ear-r','138px 59px',`<path d="M134 70Q161 65 173 42Q178 31 165 31Q145 34 123 56Z" fill="var(--pet)" ${E}/><path d="M139 61Q157 55 166 40Q155 39 135 57Z" fill="#f7c5b8"/>`)+`<path d="M82 42L77 22M78 29L67 22M78 27L87 19M118 42L123 22M122 29L133 22M122 27L113 19" stroke="#8d5738" stroke-width="4" stroke-linecap="round" fill="none"/>`,
+  head:'M100 31C140 31 164 57 164 94C164 128 139 146 100 146C61 146 36 128 36 94C36 57 60 31 100 31Z',
+  marks:'<ellipse cx="100" cy="122" rx="29" ry="19" fill="#fff3e7"/><circle cx="100" cy="48" r="3.2" fill="#fff3e7"/><circle cx="88" cy="55" r="2.4" fill="#fff3e7"/><circle cx="112" cy="55" r="2.4" fill="#fff3e7"/>',
+  body:'<ellipse cx="100" cy="160" rx="30" ry="29" fill="#fff3e7"/><circle cx="72" cy="139" r="3" fill="#fff3e7"/><circle cx="128" cy="139" r="3" fill="#fff3e7"/><circle cx="70" cy="151" r="2.5" fill="#fff3e7"/><circle cx="130" cy="151" r="2.5" fill="#fff3e7"/>',
+  tail:()=>g('a-tail','145px 177px',`<path d="M137 174q17 -9 20 5q-11 11 -20 -5Z" fill="#fff3e7" stroke="var(--edge)" stroke-width="2.5"/>`),
+  extra:'<ellipse cx="100" cy="116" rx="5.5" ry="4" fill="#493027"/>',paw:'#8d5738'},
  dragon:{title:'Дракончик',name:'Искра',c:{pet:'#9bd4a5',light:'#e5f4c9',edge:'#659b70',cheek:'#f5a3a1'},iris:'#314d3b',k:1,
   ears:()=>`<path d="M49 75Q22 67 20 43Q43 47 62 63Z" fill="#8bc99a" ${E}/><path d="M151 75Q178 67 180 43Q157 47 138 63Z" fill="#8bc99a" ${E}/><path d="M76 43L83 14L98 39L108 12L122 43Z" fill="#82c48f" ${E}/>`,
   head:'M100 34C141 34 165 60 165 96C165 130 139 146 100 146C61 146 35 130 35 96C35 60 59 34 100 34Z',
@@ -51,7 +58,7 @@ const S={
   tail:()=>g('a-tail','145px 178px',`<circle cx="145" cy="180" r="10" fill="var(--pet)" ${E}/>`),
   extra:'',paw:'#e8c7a8'}
 };
-const ORDER=['hamster','cat','bunny','dragon','fox','bear'];
+const ORDER=['hamster','cat','bunny','deer','dragon','fox','bear'];
 function eyes(s,m){
  const eye=(x,y=Y,scale=1)=>`<ellipse cx="${x}" cy="${y}" rx="${10.8*scale}" ry="${13*scale}" fill="${s.iris}"/><ellipse cx="${x+3.5}" cy="${y-5}" rx="4" ry="5" fill="#fff"/><circle cx="${x-3}" cy="${y+5}" r="2" fill="#fff" opacity=".9"/>`;
  if(['happy','sleepy'].includes(m)) return `<path d="M${L-10} ${Y}q10 -13 20 0M${R-10} ${Y}q10 -13 20 0" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round"/>`;
@@ -75,7 +82,7 @@ function svg(sp,m,lvl,o){
  const body=`<ellipse cx="100" cy="162" rx="48" ry="34" fill="var(--pet)" ${E}/><ellipse cx="100" cy="160" rx="30" ry="28" fill="var(--pet-light)"/>${s.body||''}`;
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
- const cell={hamster:[0,0],cat:[-256,0],bunny:[-512,0],dragon:[0,-256],fox:[-256,-256],bear:[-512,-256]}[sp];
+ const cell={hamster:[0,0],cat:[-256,0],bunny:[-512,0],deer:[0,-256],fox:[-256,-256],bear:[-512,-256]}[sp];
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
  <style>.pet-artwork{opacity:0;transition:opacity .18s ease}.pet-svg.pet-artwork-loaded .pet-artwork{opacity:1}.pet-svg.pet-artwork-loaded .pet-legacy{opacity:0;pointer-events:none}</style>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
