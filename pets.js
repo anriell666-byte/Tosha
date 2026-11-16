@@ -76,20 +76,27 @@ function shade(hex,f){const v=parseInt(hex.slice(1),16),a=[v>>16&255,v>>8&255,v&
 function svg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
  const k=s.k||1,kt=`translate(100 0) scale(${k} 1) translate(-100 0)`;
- const head=`<path d="${s.head}" fill="var(--pet)" ${E}/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;
+ const head=`<path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
  const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/></g>`:'';
  const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
- const body=`<ellipse cx="100" cy="162" rx="48" ry="34" fill="var(--pet)" ${E}/><ellipse cx="100" cy="160" rx="30" ry="28" fill="var(--pet-light)"/>${s.body||''}`;
+ const body=`<ellipse cx="100" cy="163" rx="49" ry="35" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2"/><ellipse cx="100" cy="160" rx="30" ry="28" fill="url(#${id}belly)"/><path d="M72 145Q80 137 88 141M112 141Q124 137 132 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}`;
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
  const cell={hamster:[0,0],cat:[-256,0],bunny:[-512,0],deer:[0,-256],fox:[-256,-256],bear:[-512,-256]}[sp];
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
+ <defs>
+  <linearGradient id="${id}fur" x1="0" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset=".32" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".28"/></linearGradient>
+  <linearGradient id="${id}body" x1="0" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset=".42" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".42"/></linearGradient>
+  <linearGradient id="${id}belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="var(--pet-light)"/></linearGradient>
+  <clipPath id="${id}h"><path d="${s.head}"/></clipPath>
+  <filter id="${id}shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter>
+ </defs>
  <style>.pet-artwork{opacity:0;transition:opacity .18s ease}.pet-svg.pet-artwork-loaded .pet-artwork{opacity:1}.pet-svg.pet-artwork-loaded .pet-legacy{opacity:0;pointer-events:none}</style>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
  <g class="p-root" style="transform-origin:100px 195px">
   <g class="pet-legacy">${s.tail(lvl)}${s.wings?s.wings():''}${feet}
-   <g class="legacy-p-body"><g class="a-breathe">${body}${scarf}${arms}
-    <g class="legacy-p-face"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}</g>
+   <g class="legacy-p-body"><g class="a-breathe">${body}<g class="fur-flecks" opacity=".5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M64 151l-4 4m12-9l-3 4m67 5l4 4m-12-9l3 4M84 185l-2 3m34-3l2 3"/></g>${scarf}${arms}
+    <g class="legacy-p-face"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}<g class="fur-tufts" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" opacity=".42"><path d="M53 91l-5 2m6 9l-5 2m103-13l5 2m-6 9l5 2"/></g></g>
    </g></g>
   </g>
   <g class="p-body" style="transform-origin:100px 175px">
