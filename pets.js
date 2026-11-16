@@ -34,7 +34,7 @@ const S={
   marks:'<ellipse cx="100" cy="122" rx="29" ry="19" fill="#fff3e7"/><circle cx="100" cy="48" r="3.2" fill="#fff3e7"/><circle cx="88" cy="55" r="2.4" fill="#fff3e7"/><circle cx="112" cy="55" r="2.4" fill="#fff3e7"/>',
   body:'<ellipse cx="100" cy="160" rx="30" ry="29" fill="#fff3e7"/><circle cx="72" cy="139" r="3" fill="#fff3e7"/><circle cx="128" cy="139" r="3" fill="#fff3e7"/><circle cx="70" cy="151" r="2.5" fill="#fff3e7"/><circle cx="130" cy="151" r="2.5" fill="#fff3e7"/>',
   tail:()=>g('a-tail','145px 177px',`<path d="M137 174q17 -9 20 5q-11 11 -20 -5Z" fill="#fff3e7" stroke="var(--edge)" stroke-width="2.5"/>`),
-  extra:'<ellipse cx="100" cy="116" rx="5.5" ry="4" fill="#493027"/>',paw:'#8d5738'},
+  extra:'',paw:'#8d5738'},
  dragon:{title:'Дракончик',name:'Искра',c:{pet:'#9bd4a5',light:'#e5f4c9',edge:'#659b70',cheek:'#f5a3a1'},iris:'#314d3b',k:1,
   ears:()=>`<path d="M49 75Q22 67 20 43Q43 47 62 63Z" fill="#8bc99a" ${E}/><path d="M151 75Q178 67 180 43Q157 47 138 63Z" fill="#8bc99a" ${E}/><path d="M76 43L83 14L98 39L108 12L122 43Z" fill="#82c48f" ${E}/>`,
   head:'M100 34C141 34 165 60 165 96C165 130 139 146 100 146C61 146 35 130 35 96C35 60 59 34 100 34Z',
@@ -71,7 +71,13 @@ function mouth(m){
  if(m==='surprised'||m==='hungry') return `<ellipse cx="100" cy="116" rx="5" ry="7" fill="${INK}"/>`;
  return `<path d="M88 109Q100 121 112 109Q107 130 100 126Q93 130 88 109Z" fill="${INK}"/><path d="M94 121q6 -5 12 0q-6 8 -12 0" fill="#f58d9d"/>`;
 }
-function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;}
+function nose(sp){
+ const fill={hamster:"#d98791",cat:"#e88e9e",bunny:"#e58d9c",deer:"#493027",dragon:"#5e9870",fox:"#49302a",bear:"#684333"}[sp]||"#d98791";
+ const edge=sp==="dragon"?"#477e5b":"#69434a";
+ return `<path d="M94 103Q100 98 106 103Q105 110 100 111Q95 110 94 103Z" fill="${fill}" stroke="${edge}" stroke-width="1.2" stroke-linejoin="round"/><path d="M97 103q2-2 4-1" fill="none" stroke="#fff4f4" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>`;
+}
+function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${nose(sp)}${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;}
+
 function shade(hex,f){const v=parseInt(hex.slice(1),16),a=[v>>16&255,v>>8&255,v&255].map(x=>Math.max(0,Math.min(255,Math.round(x*(1+f)))));return '#'+a.map(x=>x.toString(16).padStart(2,'0')).join('');}
 function svg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
@@ -95,7 +101,7 @@ function svg(sp,m,lvl,o){
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
  <g class="p-root" style="transform-origin:100px 195px">
   <g class="pet-legacy">${s.tail(lvl)}${s.wings?s.wings():''}${feet}
-   <g class="legacy-p-body"><g class="a-breathe">${body}<g class="fur-flecks" opacity=".5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M64 151l-4 4m12-9l-3 4m67 5l4 4m-12-9l3 4M84 185l-2 3m34-3l2 3"/></g>${scarf}${arms}
+   <g class="legacy-p-body"><g class="a-breathe">${body}<g class="fur-flecks" opacity=".58" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M64 151l-4 4m12-9l-3 4m67 5l4 4m-12-9l3 4M84 185l-2 3m34-3l2 3M92 143l-2 3m18-3l2 3M55 164l-3 3m93-3l3 3"/></g><g class="coat-strokes" fill="none" stroke="var(--edge)" stroke-width="1.5" stroke-linecap="round" opacity=".32"><path d="M62 161l-4 3m10 4l-4 3m74-10l4 3m-10 4l4 3M80 187l-3 3m43-3l3 3"/></g>${scarf}${arms}
     <g class="legacy-p-face"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}<g class="fur-tufts" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" opacity=".42"><path d="M53 91l-5 2m6 9l-5 2m103-13l5 2m-6 9l5 2"/></g></g>
    </g></g>
   </g>
