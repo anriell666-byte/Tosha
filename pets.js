@@ -66,10 +66,10 @@ function eyes(s,m){
  return eye(L,Y,m==='excited'?1.13:1)+eye(R,Y,m==='excited'?1.13:1);
 }
 function mouth(m){
- if(m==='sad') return `<path d="M91 116q9 -10 18 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
- if(m==='sleepy'||m==='tired') return `<path d="M94 115h12" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
- if(m==='surprised'||m==='hungry') return `<ellipse cx="100" cy="116" rx="5" ry="7" fill="${INK}"/>`;
- return `<path d="M88 109Q100 121 112 109Q107 130 100 126Q93 130 88 109Z" fill="${INK}"/><path d="M94 121q6 -5 12 0q-6 8 -12 0" fill="#f58d9d"/>`;
+ if(m==='sad') return `<path d="M91 126q9 -10 18 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
+ if(m==='sleepy'||m==='tired') return `<path d="M94 126h12" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
+ if(m==='surprised'||m==='hungry') return `<ellipse cx="100" cy="128" rx="5" ry="7" fill="${INK}"/>`;
+ return `<path d="M88 119Q100 131 112 119Q107 140 100 136Q93 140 88 119Z" fill="${INK}"/><path d="M94 131q6 -5 12 0q-6 8 -12 0" fill="#f58d9d"/>`;
 }
 function nose(sp){
  const fill={hamster:"#d98791",cat:"#e88e9e",bunny:"#e58d9c",deer:"#493027",dragon:"#5e9870",fox:"#49302a",bear:"#684333"}[sp]||"#d98791";
