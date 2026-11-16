@@ -93,9 +93,7 @@ function svg(sp,m,lvl,o){
    </g></g>
   </g>
   <g class="p-body" style="transform-origin:100px 175px">
-   <svg x="0" y="-14" width="200" height="200" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid meet">
-    <image class="pet-artwork" href="assets/pets/pet-sheet.webp" x="${cell[0]}" y="${cell[1]}" width="768" height="512" preserveAspectRatio="none"/>
-   </svg>
+   ${cell?'<svg x="0" y="-14" width="200" height="200" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid meet"><image class="pet-artwork" href="assets/pets/pet-sheet.webp" x="'+cell[0]+'" y="'+cell[1]+'" width="768" height="512" preserveAspectRatio="none"/></svg>':''}
   </g>
   <g class="p-face" style="transform-origin:100px 50px">${scarf}${hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:''}</g>
   <g class="p-prop"></g>
