@@ -75,14 +75,26 @@ function svg(sp,m,lvl,o){
  const body=`<ellipse cx="100" cy="162" rx="48" ry="34" fill="var(--pet)" ${E}/><ellipse cx="100" cy="160" rx="30" ry="28" fill="var(--pet-light)"/>${s.body||''}`;
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
+ const cell={hamster:[0,0],cat:[-256,0],bunny:[-512,0],dragon:[0,-256],fox:[-256,-256],bear:[-512,-256]}[sp];
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
- <defs><clipPath id="${id}h"><path d="${s.head}"/></clipPath></defs>
+ <style>.pet-artwork{opacity:0;transition:opacity .18s ease}.pet-svg.pet-artwork-loaded .pet-artwork{opacity:1}.pet-svg.pet-artwork-loaded .pet-legacy{opacity:0;pointer-events:none}</style>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
- <g class="p-root" style="transform-origin:100px 195px">${s.tail(lvl)}${s.wings?s.wings():''}
- ${feet}<g class="p-body" style="transform-origin:100px 175px"><g class="a-breathe" style="transform-origin:100px 175px">${body}${scarf}${arms}
- <g class="p-face" style="transform-origin:100px 112px"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}${hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:''}</g></g></g>
- <g class="p-prop"></g></g><g class="p-fx"></g></svg>`;
+ <g class="p-root" style="transform-origin:100px 195px">
+  <g class="pet-legacy">${s.tail(lvl)}${s.wings?s.wings():''}${feet}
+   <g class="legacy-p-body"><g class="a-breathe">${body}${scarf}${arms}
+    <g class="legacy-p-face"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}</g>
+   </g></g>
+  </g>
+  <g class="p-body" style="transform-origin:100px 175px">
+   <svg x="0" y="-14" width="200" height="200" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid meet">
+    <image class="pet-artwork" href="assets/pets/pet-sheet.webp" x="${cell[0]}" y="${cell[1]}" width="768" height="512" preserveAspectRatio="none"/>
+   </svg>
+  </g>
+  <g class="p-face" style="transform-origin:100px 50px">${scarf}${hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:''}</g>
+  <g class="p-prop"></g>
+ </g><g class="p-fx"></g></svg>`;;
 }
+if(root.document&&!root.__toshaPetArtworkEvents){root.__toshaPetArtworkEvents=true;root.document.addEventListener('load',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork')){const s=t.closest('svg.pet-svg');if(s)s.classList.add('pet-artwork-loaded');}},true);root.document.addEventListener('error',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork'))t.style.display='none';},true);}
 root.ToshaPets={SPECIES:S,ORDER,svg,face};
 if(typeof module!=='undefined'&&module.exports)module.exports=root.ToshaPets;
 })(typeof self!=='undefined'?self:this);
