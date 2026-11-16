@@ -484,7 +484,8 @@
     const cu = Object.assign({ quests: [], phrases: [], colors: {}, workouts: [] }, o.custom || {});
     const r = Object.assign(base, o, { settings: s, custom: cu });
     const SP = (window.ToshaPets && window.ToshaPets.SPECIES) || {};
-    if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком\n    if (r.pet === 'crocodile' || r.pet === 'croc') r.pet = 'deer'; // крокодильчик стал оленёнком
+    if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком
+    if (r.pet === 'crocodile' || r.pet === 'croc') r.pet = 'deer'; // крокодильчик стал оленёнком
     if (!SP[r.pet]) r.pet = 'hamster';
     if (cu.colors && cu.colors.blob) { cu.colors.hamster = cu.colors.blob; delete cu.colors.blob; }
     if (cu.colors && (cu.colors.crocodile || cu.colors.croc) && !cu.colors.deer) { cu.colors.deer = cu.colors.crocodile || cu.colors.croc; delete cu.colors.crocodile; delete cu.colors.croc; }
