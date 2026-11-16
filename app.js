@@ -484,12 +484,12 @@
     const cu = Object.assign({ quests: [], phrases: [], colors: {}, workouts: [] }, o.custom || {});
     const r = Object.assign(base, o, { settings: s, custom: cu });
     const SP = (window.ToshaPets && window.ToshaPets.SPECIES) || {};
-    if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком
+    if (r.pet === 'blob') r.pet = 'hamster';          // старый «комочек» стал хомяком\n    if (r.pet === 'crocodile' || r.pet === 'croc') r.pet = 'deer'; // крокодильчик стал оленёнком
     if (!SP[r.pet]) r.pet = 'hamster';
     if (cu.colors && cu.colors.blob) { cu.colors.hamster = cu.colors.blob; delete cu.colors.blob; }
     r.flags = Object.assign({ taps: 0 }, o.flags || {});
     r.ach = o.ach || {};
-    r.petsTried = Array.from(new Set((o.petsTried || []).map(x => x === 'blob' ? 'hamster' : x).concat([r.pet])));
+    r.petsTried = Array.from(new Set((o.petsTried || []).map(x => x === 'blob' ? 'hamster' : (x === 'crocodile' || x === 'croc' ? 'deer' : x)).concat([r.pet])));
     return r;
   }
   function load() {
