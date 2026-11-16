@@ -4,7 +4,7 @@ name: Собрать APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, artwork/refresh-pet-visuals]
     paths-ignore: ['README.md']
 
 permissions:
