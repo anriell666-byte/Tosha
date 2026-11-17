@@ -103,17 +103,17 @@ function svg(sp,m,lvl,o){
   </g>
   <g class="p-face" style="transform-origin:100px 50px">
    <g class="p-ears">${lvl>=2?s.ears():''}</g>
-   <path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/>${s.marks||""}
+   ${head}
    <g class="p-facedyn">${face(sp,m)}</g>
    ${s.extra||''}
-   ${hatMarkup}
+   ${hat}
   </g>
   <g class="p-prop"></g>
  </g>
  <g class="p-fx"></g>
  </svg>`;
 }
-if(root.document&&!root.__toshaPetArtworkEvents){root.__toshaPetArtworkEvents=true;root.document.addEventListener('load',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork')){const s=t.closest('svg.pet-svg');if(s)s.classList.add('pet-artwork-loaded');}},true);root.document.addEventListener('error',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork'))t.style.display='none';},true);}
+
 root.ToshaPets={SPECIES:S,ORDER,svg,face};
 if(typeof module!=='undefined'&&module.exports)module.exports=root.ToshaPets;
 })(typeof self!=='undefined'?self:this);
