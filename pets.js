@@ -28,6 +28,13 @@ const S={
   body:'<ellipse cx="100" cy="158" rx="34" ry="35" fill="var(--pet-light)"/>',
   tail:()=>g('a-tail','145px 176px',`<circle cx="147" cy="178" r="14" fill="#fff5f1" ${E}/>`),
   extra:'<path d="M68 145Q100 165 132 145" fill="none" stroke="#e7b6b3" stroke-width="3"/>',paw:'#f3a3b2'},
+ deer:{title:'Оленёнок',name:'Бэмби',c:{pet:'#d99a6d',light:'#fff3e7',edge:'#8d5738',cheek:'#f3a0a0'},iris:'#493027',k:.96,
+  ears:()=>g('a-ear-l','62px 59px',`<path d="M66 70Q39 65 27 42Q22 31 35 31Q55 34 77 56Z" fill="var(--pet)" ${E}/><path d="M61 61Q43 55 34 40Q45 39 65 57Z" fill="#f7c5b8"/>`)+g('a-ear-r','138px 59px',`<path d="M134 70Q161 65 173 42Q178 31 165 31Q145 34 123 56Z" fill="var(--pet)" ${E}/><path d="M139 61Q157 55 166 40Q155 39 135 57Z" fill="#f7c5b8"/>`)+`<path d="M82 42L77 22M78 29L67 22M78 27L87 19M118 42L123 22M122 29L133 22M122 27L113 19" stroke="#8d5738" stroke-width="4" stroke-linecap="round" fill="none"/>`,
+  head:'M100 31C140 31 164 57 164 94C164 128 139 146 100 146C61 146 36 128 36 94C36 57 60 31 100 31Z',
+  marks:'<ellipse cx="100" cy="122" rx="29" ry="19" fill="#fff3e7"/><circle cx="100" cy="48" r="3.2" fill="#fff3e7"/><circle cx="88" cy="55" r="2.4" fill="#fff3e7"/><circle cx="112" cy="55" r="2.4" fill="#fff3e7"/>',
+  body:'<ellipse cx="100" cy="160" rx="30" ry="29" fill="#fff3e7"/><circle cx="72" cy="139" r="3" fill="#fff3e7"/><circle cx="128" cy="139" r="3" fill="#fff3e7"/><circle cx="70" cy="151" r="2.5" fill="#fff3e7"/><circle cx="130" cy="151" r="2.5" fill="#fff3e7"/>',
+  tail:()=>g('a-tail','145px 177px',`<path d="M137 174q17 -9 20 5q-11 11 -20 -5Z" fill="#fff3e7" stroke="var(--edge)" stroke-width="2.5"/>`),
+  extra:'',paw:'#8d5738'},
  dragon:{title:'Дракончик',name:'Искра',c:{pet:'#9bd4a5',light:'#e5f4c9',edge:'#659b70',cheek:'#f5a3a1'},iris:'#314d3b',k:1,
   ears:()=>`<path d="M49 75Q22 67 20 43Q43 47 62 63Z" fill="#8bc99a" ${E}/><path d="M151 75Q178 67 180 43Q157 47 138 63Z" fill="#8bc99a" ${E}/><path d="M76 43L83 14L98 39L108 12L122 43Z" fill="#82c48f" ${E}/>`,
   head:'M100 34C141 34 165 60 165 96C165 130 139 146 100 146C61 146 35 130 35 96C35 60 59 34 100 34Z',
@@ -51,7 +58,7 @@ const S={
   tail:()=>g('a-tail','145px 178px',`<circle cx="145" cy="180" r="10" fill="var(--pet)" ${E}/>`),
   extra:'',paw:'#e8c7a8'}
 };
-const ORDER=['hamster','cat','bunny','dragon','fox','bear'];
+const ORDER=['hamster','cat','bunny','deer','dragon','fox','bear'];
 function eyes(s,m){
  const eye=(x,y=Y,scale=1)=>`<ellipse cx="${x}" cy="${y}" rx="${10.8*scale}" ry="${13*scale}" fill="${s.iris}"/><ellipse cx="${x+3.5}" cy="${y-5}" rx="4" ry="5" fill="#fff"/><circle cx="${x-3}" cy="${y+5}" r="2" fill="#fff" opacity=".9"/>`;
  if(['happy','sleepy'].includes(m)) return `<path d="M${L-10} ${Y}q10 -13 20 0M${R-10} ${Y}q10 -13 20 0" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round"/>`;
@@ -59,30 +66,54 @@ function eyes(s,m){
  return eye(L,Y,m==='excited'?1.13:1)+eye(R,Y,m==='excited'?1.13:1);
 }
 function mouth(m){
- if(m==='sad') return `<path d="M91 116q9 -10 18 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
- if(m==='sleepy'||m==='tired') return `<path d="M94 115h12" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
- if(m==='surprised'||m==='hungry') return `<ellipse cx="100" cy="116" rx="5" ry="7" fill="${INK}"/>`;
- return `<path d="M88 109Q100 121 112 109Q107 130 100 126Q93 130 88 109Z" fill="${INK}"/><path d="M94 121q6 -5 12 0q-6 8 -12 0" fill="#f58d9d"/>`;
+ if(m==='sad') return `<path d="M91 126q9 -10 18 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
+ if(m==='sleepy'||m==='tired') return `<path d="M94 126h12" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
+ if(m==='surprised'||m==='hungry') return `<ellipse cx="100" cy="128" rx="5" ry="7" fill="${INK}"/>`;
+ return `<path d="M88 119Q100 131 112 119Q107 140 100 136Q93 140 88 119Z" fill="${INK}"/><path d="M94 131q6 -5 12 0q-6 8 -12 0" fill="#f58d9d"/>`;
 }
-function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;}
+function nose(sp){
+ const fill={hamster:"#d98791",cat:"#e88e9e",bunny:"#e58d9c",deer:"#493027",dragon:"#5e9870",fox:"#49302a",bear:"#684333"}[sp]||"#d98791";
+ const edge=sp==="dragon"?"#477e5b":"#69434a";
+ return `<path d="M94 103Q100 98 106 103Q105 110 100 111Q95 110 94 103Z" fill="${fill}" stroke="${edge}" stroke-width="1.2" stroke-linejoin="round"/><path d="M97 103q2-2 4-1" fill="none" stroke="#fff4f4" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>`;
+}
+function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${nose(sp)}${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;}
+
 function shade(hex,f){const v=parseInt(hex.slice(1),16),a=[v>>16&255,v>>8&255,v&255].map(x=>Math.max(0,Math.min(255,Math.round(x*(1+f)))));return '#'+a.map(x=>x.toString(16).padStart(2,'0')).join('');}
 function svg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
  const k=s.k||1,kt=`translate(100 0) scale(${k} 1) translate(-100 0)`;
- const head=`<path d="${s.head}" fill="var(--pet)" ${E}/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;
+ const head=`<path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
  const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/></g>`:'';
  const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
- const body=`<ellipse cx="100" cy="162" rx="48" ry="34" fill="var(--pet)" ${E}/><ellipse cx="100" cy="160" rx="30" ry="28" fill="var(--pet-light)"/>${s.body||''}`;
+ const body=`<ellipse cx="100" cy="163" rx="49" ry="35" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2"/><ellipse cx="100" cy="160" rx="30" ry="28" fill="url(#${id}belly)"/><path d="M72 145Q80 137 88 141M112 141Q124 137 132 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}`;
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
+
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
- <defs><clipPath id="${id}h"><path d="${s.head}"/></clipPath></defs>
- <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
- <g class="p-root" style="transform-origin:100px 195px">${s.tail(lvl)}${s.wings?s.wings():''}
- ${feet}<g class="p-body" style="transform-origin:100px 175px"><g class="a-breathe" style="transform-origin:100px 175px">${body}${scarf}${arms}
- <g class="p-face" style="transform-origin:100px 112px"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}${hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:''}</g></g></g>
- <g class="p-prop"></g></g><g class="p-fx"></g></svg>`;
+ <defs><linearGradient id="${id}fur" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".3" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".24"/></linearGradient><linearGradient id="${id}body" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset=".55" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".2"/></linearGradient><linearGradient id="${id}belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="var(--pet-light)"/><stop offset="1" stop-color="var(--pet-light)" stop-opacity=".82"/></linearGradient><filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+ <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".12"/>
+ <g class="p-root" style="transform-origin:100px 195px">
+  ${s.tail(lvl)}${s.wings?s.wings():''}${feet}
+  <g class="p-body" style="transform-origin:100px 175px">
+   <g class="a-breathe">
+    ${body}
+    ${scarf}
+    ${arms}
+   </g>
+  </g>
+  <g class="p-face" style="transform-origin:100px 50px">
+   <g class="p-ears">${lvl>=2?s.ears():''}</g>
+   <path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/>${s.marks||""}
+   <g class="p-facedyn">${face(sp,m)}</g>
+   ${s.extra||''}
+   ${hatMarkup}
+  </g>
+  <g class="p-prop"></g>
+ </g>
+ <g class="p-fx"></g>
+ </svg>`;
 }
+if(root.document&&!root.__toshaPetArtworkEvents){root.__toshaPetArtworkEvents=true;root.document.addEventListener('load',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork')){const s=t.closest('svg.pet-svg');if(s)s.classList.add('pet-artwork-loaded');}},true);root.document.addEventListener('error',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork'))t.style.display='none';},true);}
 root.ToshaPets={SPECIES:S,ORDER,svg,face};
 if(typeof module!=='undefined'&&module.exports)module.exports=root.ToshaPets;
 })(typeof self!=='undefined'?self:this);

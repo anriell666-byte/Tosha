@@ -99,7 +99,7 @@ p{margin:0 0 8px}
 
 /* анимация частей питомца: классы a-* заданы в pets.js */
 .pet-svg{overflow:visible}
-.a-eyes{animation:blink 5.5s infinite}
+.a-eyes{animation:blink 5.5s infinite;transform-box:fill-box;transform-origin:center}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
 .m-sleepy .a-eyes,.m-happy .a-eyes{animation:none}
 .a-breathe{animation:breathe 4s ease-in-out infinite}
