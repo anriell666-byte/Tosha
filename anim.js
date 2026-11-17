@@ -436,7 +436,7 @@
   });
 
   /* ---------- Контекст построения ---------- */
-  function setFace(svg, m) { const t = svg.querySelector('.p-facedyn'); if (t && P && P.face) t.innerHTML = P.face(svg.dataset.sp, m); }
+  function setFace(svg, m) { if (svg.dataset.art === 'illustration') return; const t = svg.querySelector('.p-facedyn'); if (t && P && P.face) t.innerHTML = P.face(svg.dataset.sp, m); }
   function setProp(svg, html) { const p = svg.querySelector('.p-prop'); if (p) p.innerHTML = html; }
 
   function makeCtx(svg, st) {
