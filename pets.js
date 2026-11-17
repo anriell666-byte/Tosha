@@ -131,7 +131,7 @@ const HEAD_SILHOUETTES={
  bear:'M100 29Q130 27 149 49Q169 72 160 108l-8 2q3 12-7 19l-7-6q-3 14-16 18l-4-8q-8 10-18 8q-10 2-18-8l-4 8q-13-4-16-18l-7 6q-10-7-7-19l-8-2Q31 72 51 49Q70 27 100 29Z'
 };
 
-function svg(sp,m,lvl,o){
+function legacySvg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
  const k=s.k||1,kt=`translate(100 0) scale(${k} 1) translate(-100 0)`;
  const head=`<path d="${HEAD_SILHOUETTES[sp]}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="${HEAD_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
@@ -162,6 +162,36 @@ function svg(sp,m,lvl,o){
    ${s.extra||''}
    ${hat}
   </g>
+  <g class="p-prop"></g>
+ </g>
+ <g class="p-fx"></g>
+ </svg>`;
+}
+
+
+const ILLUSTRATION_CELLS={
+ hamster:[0,0], bunny:[224,0], deer:[448,0],
+ dragon:[0,224], fox:[224,224], bear:[448,224]
+};
+function svg(sp,m,lvl,o){
+ o=o||{}; sp=S[sp]?sp:'hamster';
+ if(!ILLUSTRATION_CELLS[sp]) return legacySvg(sp,m,lvl,o);
+ const [ix,iy]=ILLUSTRATION_CELLS[sp], id='art'+(++uid);
+ const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="#49343a" stroke-width="2.5"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="#49343a" stroke-width="2.5"/></g>`:'';
+ const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
+ return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" data-art="illustration" viewBox="0 0 200 226" role="img" aria-label="${esc(o.label||S[sp].title)}">
+ <defs><filter id="${id}shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+ <ellipse class="p-shadow" cx="100" cy="202" rx="55" ry="7" fill="#49343a" opacity=".13"/>
+ <g class="p-root" style="transform-origin:100px 202px">
+  <g class="p-body" style="transform-origin:100px 190px">
+   <g class="a-breathe">
+    <svg x="0" y="0" width="200" height="200" viewBox="${ix} ${iy} 224 224" preserveAspectRatio="xMidYMid meet">
+     <image href="assets/pets/atlas.webp" x="0" y="0" width="672" height="448" preserveAspectRatio="none"/>
+    </svg>
+   </g>
+  </g>
+  ${scarf}${hat}
+  <g class="p-face"><g class="p-ears"></g><g class="p-facedyn"></g></g>
   <g class="p-prop"></g>
  </g>
  <g class="p-fx"></g>
