@@ -100,13 +100,33 @@ dragon:'M57 148Q62 127 83 130L92 136L100 128L108 136L117 130Q138 127 143 148Q149
 fox:'M58 146Q65 128 84 130Q100 125 116 130Q135 128 142 146Q149 169 131 188Q115 198 100 192Q85 198 69 188Q51 169 58 146Z',
 bear:'M54 148Q58 126 81 126Q100 116 119 126Q142 126 146 148Q153 174 132 190Q117 200 100 194Q83 200 68 190Q47 174 54 148Z'
 };
+
+const HEAD_FUR={
+ hamster:'M47 59q-8 0-10 10l8 1q-7 7-5 14l8-2q-4 8 1 14l7-5q0 10 8 13l3-8q5 9 13 9l1-8q8 8 16 5q8 3 16-5l1 8q8 0 13-9l3 8q8-3 8-13l7 5q5-6 1-14l8 2q2-7-5-14l8-1q-2-10-10-10',
+ cat:'M48 59l-10 2 7 8-4 9 9-1q-1 9 7 13l4-8q4 10 13 10l1-8q8 8 15 4l2-7 0 0q7 4 15-4l1 8q9 0 13-10l4 8q8-4 7-13l9 1-4-9 7-8-10-2',
+ bunny:'M48 64q-8 3-8 12l9-1q-4 9 3 15l6-6q1 10 10 12l2-8q7 8 15 5l2-7q13 5 26 0l2 7q8 3 15-5l2 8q9-2 10-12l6 6q7-6 3-15l9 1q0-9-8-12',
+ deer:'M49 61q-9 3-8 12l9-1q-4 8 2 14l6-5q2 9 10 11l3-7q7 8 15 4l3-7q10 4 21 0l3 7q8 4 15-4l3 7q8-2 10-11l6 5q6-6 2-14l9 1q1-9-8-12',
+ dragon:'M49 62l-9 2 7 8-3 9 9-1q-1 9 7 13l5-8q4 10 13 9l2-8q8 7 15 3q7 4 15-3l2 8q9 1 13-9l5 8q8-4 7-13l9 1-3-9 7-8-9-2',
+ fox:'M49 60q-9 3-7 12l9-1q-4 9 3 15l6-6q2 10 11 12l3-8q8 8 16 4l2-7q8 5 16 0l2 7q8 4 16-4l3 8q9-2 11-12l6 6q7-6 3-15l9 1q2-9-7-12',
+ bear:'M47 60q-9 2-8 12l9-1q-4 9 3 15l6-6q1 10 10 12l3-8q8 9 17 5l2-8q9 5 18 0l2 8q9 4 17-5l3 8q9-2 10-12l6 6q7-6 3-15l9 1q1-10-8-12'
+};
+const BODY_FUR={
+ hamster:'M63 145q-8 5-7 15l7-2q-3 9 4 14l5-5q1 10 10 12l2-7q8 9 16 5q8 4 16-5l2 7q9-2 10-12l5 5q7-5 4-14l7 2q1-10-7-15',
+ cat:'M63 143l-7 7 8 2-3 10 9-3q0 10 9 13l3-7q8 8 18 4q10 4 18-4l3 7q9-3 9-13l9 3-3-10 8-2-7-7',
+ bunny:'M63 145q-8 5-6 14l7-2q-2 10 6 14l5-6q2 10 11 11l2-7q12 7 24 0l2 7q9-1 11-11l5 6q8-4 6-14l7 2q2-9-6-14',
+ deer:'M66 143q-8 5-6 14l7-2q-2 9 6 13l5-5q3 9 11 10l2-6q9 5 18 0l2 6q8-1 11-10l5 5q8-4 6-13l7 2q2-9-6-14',
+ dragon:'M61 145l-7 8 9 1-2 10 9-4q2 10 11 12l3-7q8 8 16 4q8 4 16-4l3 7q9-2 11-12l9 4-2-10 9-1-7-8',
+ fox:'M62 144q-8 5-6 14l7-2q-2 10 6 14l5-6q2 10 11 11l2-7q9 6 18 0l2 7q9-1 11-11l5 6q8-4 6-14l7 2q2-9-6-14',
+ bear:'M61 143q-9 6-6 16l8-2q-2 10 7 14l5-6q2 10 12 12l2-8q11 7 22 0l2 8q10-2 12-12l5 6q9-4 7-14l8 2q3-10-6-16'
+};
+
 function svg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
  const k=s.k||1,kt=`translate(100 0) scale(${k} 1) translate(-100 0)`;
- const head=`<path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
+ const head=`<path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="${HEAD_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
  const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/></g>`:'';
  const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
- const body=`<path d="${BODY_SHAPES[sp]}" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2" stroke-linejoin="round"/><ellipse cx="100" cy="164" rx="${sp==='bear'?27:sp==='deer'?22:25}" ry="${sp==='deer'?24:26}" fill="url(#${id}belly)"/><path d="M78 145Q86 139 92 143M108 143Q116 139 122 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}<g class="p-fur-body" fill="none" stroke="var(--edge)" stroke-width="1.65" stroke-linecap="round" opacity=".48"><path d="M65 145q-5 7-2 13m7-16q-4 7-2 12m66-9q5 7 2 13m-7-16q4 7 2 12M73 178q-2 7 3 11m51-11q2 7-3 11M84 188q5 4 10 2m22-2q-5 4-10 2"/><path d="M77 151l-5 4m51-4l5 4M82 161l-4 4m44-4l4 4M91 184l-2 5m20-5l2 5"/></g>`;
+ const body=`<path d="${BODY_SHAPES[sp]}" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2" stroke-linejoin="round"/><path d="${BODY_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><ellipse cx="100" cy="164" rx="${sp==='bear'?27:sp==='deer'?22:25}" ry="${sp==='deer'?24:26}" fill="url(#${id}belly)"/><path d="M78 145Q86 139 92 143M108 143Q116 139 122 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}<g class="p-fur-body" fill="none" stroke="var(--edge)" stroke-width="1.65" stroke-linecap="round" opacity=".48"><path d="M65 145q-5 7-2 13m7-16q-4 7-2 12m66-9q5 7 2 13m-7-16q4 7 2 12M73 178q-2 7 3 11m51-11q2 7-3 11M84 188q5 4 10 2m22-2q-5 4-10 2"/><path d="M77 151l-5 4m51-4l5 4M82 161l-4 4m44-4l4 4M91 184l-2 5m20-5l2 5"/></g>`;
  const arms=[-1,1].map(side=>{const x=100+side*25,hand=100+side*16;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 145px`,`<path d="M${x} 137Q${x+side*9} 143 ${hand} 153Q${hand+side*2} 162 ${hand-side*2} 166Q${hand-side*10} 166 ${hand-side*12} 157Q${x-side*4} 150 ${x-side*7} 145Z" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.7" stroke-linejoin="round"/><ellipse cx="${hand-side*2}" cy="162" rx="8" ry="7" fill="${s.paw}" stroke="var(--edge)" stroke-width="1.5"/><path d="M${hand-side*5} 161l-2 3m6-4l-1 3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>`)}).join('');
  const feet=[-1,1].map(side=>{const x=100+side*23;return g(side<0?'p-foot-l':'p-foot-r',`${x}px 181px`,`<path d="M${x-8} 160Q${x-13} 174 ${x-12} 184Q${x-11} 194 ${x} 194Q${x+11} 194 ${x+12} 184Q${x+13} 174 ${x+8} 160Z" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.8"/><ellipse cx="${x}" cy="187" rx="16" ry="8.5" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.4"/><path d="M${x-5} 187q-2 3 0 4m5-4q-2 3 0 4m5-4q-2 3 0 4" fill="none" stroke="${s.paw}" stroke-width="2" stroke-linecap="round"/>`)}).join('');
 
