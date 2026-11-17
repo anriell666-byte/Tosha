@@ -34,7 +34,7 @@ const S={
   marks:'<path d="M73 113Q100 92 127 113Q121 143 100 143Q79 143 73 113Z" fill="#fff1d9"/><circle cx="78" cy="65" r="3.2" fill="#f2d7b1"/><circle cx="122" cy="65" r="3.2" fill="#f2d7b1"/>',
   body:'<ellipse cx="100" cy="158" rx="35" ry="36" fill="var(--pet-light)"/>',
   tail:()=>g('a-tail','145px 177px',`<path d="M137 174q19 0 17 13q-3 9-14 7" fill="#fff1d9" ${E}/>`),
-  extra:'<ellipse cx="100" cy="108" rx="13" ry="9" fill="#fff1d9"/><path d="M94 105q6 -5 12 0q-2 6-6 6q-4 0-6-6Z" fill="#49343a"/>',paw:'#e8c2a0'},
+  extra:'<ellipse cx="100" cy="108" rx="13" ry="9" fill="#fff1d9"/>',paw:'#e8c2a0'},
 
  fox:{title:'Лисёнок',name:'Рыжик',c:{pet:'#ef7952',light:'#fff3e8',edge:'#a84f36',cheek:'#f4a0a0'},iris:'#3d2926',k:1,
   ears:()=>g('a-ear-l','58px 58px',`<path d="M31 86L39 8Q43 -3 55 17L83 65Z" fill="var(--pet)" ${E}/><path d="M45 64L49 28L68 59Z" fill="#fff0df"/>`)+g('a-ear-r','142px 58px',`<path d="M169 86L161 8Q157 -3 145 17L117 65Z" fill="var(--pet)" ${E}/><path d="M155 64L151 28L132 59Z" fill="#fff0df"/>`),
@@ -49,7 +49,7 @@ const S={
   marks:'<ellipse cx="100" cy="117" rx="34" ry="25" fill="#fff3df"/><path d="M73 51Q100 39 127 51" fill="none" stroke="#b98253" stroke-width="5" stroke-linecap="round"/>',
   body:'<ellipse cx="100" cy="158" rx="37" ry="36" fill="var(--pet-light)"/>',
   tail:()=>g('a-tail','145px 177px',`<path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="#8a6242" stroke-width="17" stroke-linecap="round"/><path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="var(--pet)" stroke-width="12" stroke-linecap="round"/>`),
-  extra:'<ellipse cx="100" cy="109" rx="15" ry="11" fill="#fff3df"/><path d="M94 105q6 -5 12 0q-2 7-6 7q-4 0-6-7Z" fill="#49343a"/>',paw:'#c58d61'}
+  extra:'<ellipse cx="100" cy="109" rx="15" ry="11" fill="#fff3df"/>',paw:'#c58d61'}
 
 };
 const ORDER=['hamster','deer','fox','bunny','cat','dog'];
