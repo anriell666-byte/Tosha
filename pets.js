@@ -90,7 +90,7 @@ function svg(sp,m,lvl,o){
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
 
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
- <defs><filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+ <defs><linearGradient id="${id}fur" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".3" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".24"/></linearGradient><linearGradient id="${id}body" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset=".55" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".2"/></linearGradient><linearGradient id="${id}belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="var(--pet-light)"/><stop offset="1" stop-color="var(--pet-light)" stop-opacity=".82"/></linearGradient><filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".12"/>
  <g class="p-root" style="transform-origin:100px 195px">
   ${s.tail(lvl)}${s.wings?s.wings():''}${feet}
@@ -102,8 +102,8 @@ function svg(sp,m,lvl,o){
    </g>
   </g>
   <g class="p-face" style="transform-origin:100px 50px">
-   <path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/>${s.marks||""}
    <g class="p-ears">${lvl>=2?s.ears():''}</g>
+   <path d="${s.head}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/>${s.marks||""}
    <g class="p-facedyn">${face(sp,m)}</g>
    ${s.extra||''}
    ${hatMarkup}
