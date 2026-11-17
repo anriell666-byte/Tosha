@@ -3,7 +3,7 @@ importScripts('core.js');
 
 const CACHE = 'tosha-v14-raster-pets';
 const ASSETS = ['./', 'index.html', 'core.js', 'pets.js', 'anim.js', 'app.js', 'manifest.webmanifest',
-  'icon-96.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'assets/pets/pet-layers.webp'];
+  'icon-96.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'assets/pets/pet-sheet-0.webp', 'assets/pets/pet-sheet-1.webp', 'assets/pets/pet-sheet-2.webp', 'assets/pets/pet-sheet-3.webp'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
