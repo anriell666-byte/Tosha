@@ -89,16 +89,13 @@ function svg(sp,m,lvl,o){
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
  const idx=ORDER.indexOf(sp);
- const headCol=idx%4, headRow=Math.floor(idx/4);
- const bodyIdx=8+idx, bodyCol=bodyIdx%4, bodyRow=Math.floor(bodyIdx/4);
- const rasterFilter='';
- const headRaster=`<svg x="0" y="-26" width="200" height="171.1" viewBox="0 0 128 146" preserveAspectRatio="none"><image href="assets/pets/pet-layers.webp" x="${-headCol*128}" y="${-headRow*146}" width="512" height="584" preserveAspectRatio="none" ${rasterFilter}/></svg>`;
- const bodyRaster=`<svg x="0" y="125" width="200" height="82.03" viewBox="0 0 128 53" preserveAspectRatio="none"><image href="assets/pets/pet-layers.webp" x="${-bodyCol*128}" y="${-bodyRow*146}" width="512" height="584" preserveAspectRatio="none" ${rasterFilter}/></svg>`;
+ const sheet=Math.floor(idx/2), cell=idx%2;
+ const rasterSrc=`assets/pets/pet-sheet-${sheet}.webp`;
+ const headRaster=`<svg x="0" y="-26" width="200" height="171.1" viewBox="0 0 128 146" preserveAspectRatio="none"><image href="${rasterSrc}" x="${-cell*128}" y="0" width="256" height="292" preserveAspectRatio="none"/></svg>`;
+ const bodyRaster=`<svg x="0" y="125" width="200" height="82.03" viewBox="0 0 128 53" preserveAspectRatio="none"><image href="${rasterSrc}" x="${-cell*128}" y="-146" width="256" height="292" preserveAspectRatio="none"/></svg>`;
  const hatMarkup=hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:'';
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
- <defs>
-  <filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter>
- </defs>
+ <defs><filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".12"/>
  <g class="p-root" style="transform-origin:100px 195px">
   ${s.tail(lvl)}${s.wings?s.wings():''}${feet}
