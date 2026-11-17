@@ -173,30 +173,7 @@ const ILLUSTRATION_CELLS={
  hamster:[0,0], bunny:[224,0], deer:[448,0],
  dragon:[0,224], fox:[224,224], bear:[448,224]
 };
-function svg(sp,m,lvl,o){
- o=o||{}; sp=S[sp]?sp:'hamster';
- if(!ILLUSTRATION_CELLS[sp]) return legacySvg(sp,m,lvl,o);
- const [ix,iy]=ILLUSTRATION_CELLS[sp], id='art'+(++uid);
- const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="#49343a" stroke-width="2.5"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="#49343a" stroke-width="2.5"/></g>`:'';
- const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
- return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" data-art="illustration" viewBox="0 0 200 226" role="img" aria-label="${esc(o.label||S[sp].title)}">
- <defs><filter id="${id}shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
- <ellipse class="p-shadow" cx="100" cy="202" rx="55" ry="7" fill="#49343a" opacity=".13"/>
- <g class="p-root" style="transform-origin:100px 202px">
-  <g class="p-body" style="transform-origin:100px 190px">
-   <g class="a-breathe">
-    <svg x="0" y="0" width="200" height="200" viewBox="${ix} ${iy} 224 224" preserveAspectRatio="xMidYMid meet">
-     <image href="assets/pets/atlas.webp" x="0" y="0" width="672" height="448" preserveAspectRatio="none"/>
-    </svg>
-   </g>
-  </g>
-  ${scarf}${hat}
-  <g class="p-face"><g class="p-ears"></g><g class="p-facedyn"></g></g>
-  <g class="p-prop"></g>
- </g>
- <g class="p-fx"></g>
- </svg>`;
-}
+function svg(sp,m,lvl,o){ return legacySvg(sp,m,lvl,o); }
 
 root.ToshaPets={SPECIES:S,ORDER,svg,face};
 if(typeof module!=='undefined'&&module.exports)module.exports=root.ToshaPets;
