@@ -29,11 +29,11 @@ const S={
   tail:()=>g('a-tail','145px 176px',`<circle cx="147" cy="178" r="14" fill="#fff5f1" ${E}/>`),
   extra:'<path d="M68 145Q100 165 132 145" fill="none" stroke="#e7b6b3" stroke-width="3"/>',paw:'#f3a3b2'},
  deer:{title:'Оленёнок',name:'Бемби',c:{pet:'#c58a62',light:'#fff1d9',edge:'#80543c',cheek:'#ef9b9b'},iris:'#493126',k:1.02,
-  ears:()=>g('a-ear-l','48px 63px',\`<path d="M66 72Q35 38 20 49Q27 79 67 91Z" fill="var(--pet)" \${E}/><path d="M60 76Q39 55 30 57Q39 73 62 84Z" fill="#e9b5a1"/><path d="M134 72Q165 38 180 49Q173 79 133 91Z" fill="var(--pet)" \${E}/><path d="M140 76Q161 55 170 57Q161 73 138 84Z" fill="#e9b5a1"/><path d="M81 48L76 24Q76 19 81 23L99 43L100 18Q101 12 106 19L111 43L127 24Q132 20 131 27L119 52Z" fill="#e8d4b7" stroke="#80543c" stroke-width="3" stroke-linejoin="round"/>\`),
+  ears:()=>g('a-ear-l','48px 63px',`<path d="M66 72Q35 38 20 49Q27 79 67 91Z" fill="var(--pet)" ${E}/><path d="M60 76Q39 55 30 57Q39 73 62 84Z" fill="#e9b5a1"/><path d="M134 72Q165 38 180 49Q173 79 133 91Z" fill="var(--pet)" ${E}/><path d="M140 76Q161 55 170 57Q161 73 138 84Z" fill="#e9b5a1"/><path d="M81 48L76 24Q76 19 81 23L99 43L100 18Q101 12 106 19L111 43L127 24Q132 20 131 27L119 52Z" fill="#e8d4b7" stroke="#80543c" stroke-width="3" stroke-linejoin="round"/>`),
   head:'M100 34C141 34 165 60 165 96C165 130 139 146 100 146C61 146 35 130 35 96C35 60 59 34 100 34Z',
   marks:'<path d="M73 113Q100 92 127 113Q121 143 100 143Q79 143 73 113Z" fill="#fff1d9"/><circle cx="78" cy="65" r="3.2" fill="#f2d7b1"/><circle cx="122" cy="65" r="3.2" fill="#f2d7b1"/>',
   body:'<ellipse cx="100" cy="158" rx="35" ry="36" fill="var(--pet-light)"/>',
-  tail:()=>g('a-tail','145px 177px',\`<path d="M137 174q19 0 17 13q-3 9-14 7" fill="#fff1d9" \${E}/>\`),
+  tail:()=>g('a-tail','145px 177px',`<path d="M137 174q19 0 17 13q-3 9-14 7" fill="#fff1d9" ${E}/>`),
   extra:'<ellipse cx="100" cy="108" rx="13" ry="9" fill="#fff1d9"/><path d="M94 105q6 -5 12 0q-2 6-6 6q-4 0-6-6Z" fill="#49343a"/>',paw:'#e8c2a0'},
 
  fox:{title:'Лисёнок',name:'Рыжик',c:{pet:'#ef7952',light:'#fff3e8',edge:'#a84f36',cheek:'#f4a0a0'},iris:'#3d2926',k:1,
@@ -44,11 +44,11 @@ const S={
   tail:()=>g('a-tail','145px 173px',`<path d="M137 177Q180 197 191 145Q198 113 173 110Q166 145 139 151Z" fill="var(--pet)" ${E}/><path d="M174 113Q194 122 185 149Q176 159 163 159Q178 140 174 113Z" fill="#fff3e8"/>`),
   extra:'<ellipse cx="100" cy="151" rx="20" ry="29" fill="#fff3e8"/>',paw:'#fff0df'},
  dog:{title:'Щенок',name:'Бублик',c:{pet:'#d8a66e',light:'#fff3df',edge:'#8a6242',cheek:'#f2a0a0'},iris:'#3b2b24',k:1.04,
-  ears:()=>g('a-ear-l','49px 66px',\`<path d="M58 48Q27 40 25 77Q24 103 48 110Q66 101 69 75Z" fill="#9b6948" \${E}/><path d="M55 58Q36 54 35 79Q36 94 49 98Q60 88 61 73Z" fill="#c98b70"/>\`)+g('a-ear-r','151px 66px',\`<path d="M142 48Q173 40 175 77Q176 103 152 110Q134 101 131 75Z" fill="#9b6948" \${E}/><path d="M145 58Q164 54 165 79Q164 94 151 98Q140 88 139 73Z" fill="#c98b70"/>\`),
+  ears:()=>g('a-ear-l','49px 66px',`<path d="M58 48Q27 40 25 77Q24 103 48 110Q66 101 69 75Z" fill="#9b6948" ${E}/><path d="M55 58Q36 54 35 79Q36 94 49 98Q60 88 61 73Z" fill="#c98b70"/>`)+g('a-ear-r','151px 66px',`<path d="M142 48Q173 40 175 77Q176 103 152 110Q134 101 131 75Z" fill="#9b6948" ${E}/><path d="M145 58Q164 54 165 79Q164 94 151 98Q140 88 139 73Z" fill="#c98b70"/>`),
   head:'M100 31C143 31 166 58 166 96C166 131 140 148 100 148C60 148 34 131 34 96C34 58 57 31 100 31Z',
   marks:'<ellipse cx="100" cy="117" rx="34" ry="25" fill="#fff3df"/><path d="M73 51Q100 39 127 51" fill="none" stroke="#b98253" stroke-width="5" stroke-linecap="round"/>',
   body:'<ellipse cx="100" cy="158" rx="37" ry="36" fill="var(--pet-light)"/>',
-  tail:()=>g('a-tail','145px 177px',\`<path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="#8a6242" stroke-width="17" stroke-linecap="round"/><path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="var(--pet)" stroke-width="12" stroke-linecap="round"/>\`),
+  tail:()=>g('a-tail','145px 177px',`<path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="#8a6242" stroke-width="17" stroke-linecap="round"/><path d="M137 174Q170 181 163 150Q160 139 151 143" fill="none" stroke="var(--pet)" stroke-width="12" stroke-linecap="round"/>`),
   extra:'<ellipse cx="100" cy="109" rx="15" ry="11" fill="#fff3df"/><path d="M94 105q6 -5 12 0q-2 7-6 7q-4 0-6-7Z" fill="#49343a"/>',paw:'#c58d61'}
 
 };
