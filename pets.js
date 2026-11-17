@@ -114,7 +114,7 @@ function svg(sp,m,lvl,o){
  <defs><clipPath id="${id}h"><path d="${s.head}"/></clipPath><linearGradient id="${id}fur" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".3" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".24"/></linearGradient><linearGradient id="${id}body" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset=".55" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".2"/></linearGradient><linearGradient id="${id}belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="var(--pet-light)"/><stop offset="1" stop-color="var(--pet-light)" stop-opacity=".82"/></linearGradient><filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
  <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".12"/>
  <g class="p-root" style="transform-origin:100px 195px">
-  ${s.tail(lvl)}${s.wings?s.wings():''}${feet}
+  ${s.tail(lvl)}${s.wings?s.wings():''}
   <g class="p-body" style="transform-origin:100px 175px">
    <g class="a-breathe">
     ${body}
@@ -122,6 +122,7 @@ function svg(sp,m,lvl,o){
     ${arms}
    </g>
   </g>
+  ${feet}
   <g class="p-face" style="transform-origin:100px 50px">
    <g class="p-ears">${s.ears()}</g>
    ${head}
