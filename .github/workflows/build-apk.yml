@@ -33,7 +33,7 @@ jobs:
           mkdir -p www
           cp index.html core.js pets.js anim.js app.js manifest.webmanifest www/
           cp icon-*.png apple-touch-icon.png shot-*.png www/
-          cp -r assets www/assets
+          if [ -d assets ]; then cp -r assets www/assets; else mkdir -p www/assets; fi
 
       - name: Создать Android-проект
         run: |
