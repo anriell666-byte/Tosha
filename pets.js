@@ -76,7 +76,19 @@ function nose(sp){
  const edge=sp==="dragon"?"#477e5b":"#69434a";
  return `<path d="M94 103Q100 98 106 103Q105 110 100 111Q95 110 94 103Z" fill="${fill}" stroke="${edge}" stroke-width="1.2" stroke-linejoin="round"/><path d="M97 103q2-2 4-1" fill="none" stroke="#fff4f4" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>`;
 }
-function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${nose(sp)}${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`;}
+function muzzle(sp){
+ const shapes={
+ hamster:'<ellipse cx="88" cy="119" rx="13" ry="11" fill="#fffafa"/><ellipse cx="112" cy="119" rx="13" ry="11" fill="#fffafa"/>',
+ cat:'<ellipse cx="89" cy="119" rx="14" ry="10" fill="#fffafa"/><ellipse cx="111" cy="119" rx="14" ry="10" fill="#fffafa"/>',
+ bunny:'<ellipse cx="100" cy="119" rx="17" ry="12" fill="#fff5f1"/>',
+ deer:'<path d="M77 112Q100 103 123 112Q127 133 100 138Q73 133 77 112Z" fill="#fff3e7"/>',
+ dragon:'<path d="M78 111Q100 105 122 111L119 130Q100 140 81 130Z" fill="#c4e8b9"/>',
+ fox:'<path d="M76 111Q100 105 124 111Q121 130 100 139Q79 130 76 111Z" fill="#fff3e8"/>',
+ bear:'<ellipse cx="100" cy="119" rx="23" ry="17" fill="#f5dfbd"/>'
+ };
+ return shapes[sp]||shapes.hamster;
+}
+function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${muzzle(sp)}${nose(sp)}${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`}
 
 function shade(hex,f){const v=parseInt(hex.slice(1),16),a=[v>>16&255,v>>8&255,v&255].map(x=>Math.max(0,Math.min(255,Math.round(x*(1+f)))));return '#'+a.map(x=>x.toString(16).padStart(2,'0')).join('');}
 const BODY_SHAPES={
