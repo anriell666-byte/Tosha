@@ -88,29 +88,38 @@ function svg(sp,m,lvl,o){
  const body=`<ellipse cx="100" cy="163" rx="49" ry="35" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2"/><ellipse cx="100" cy="160" rx="30" ry="28" fill="url(#${id}belly)"/><path d="M72 145Q80 137 88 141M112 141Q124 137 132 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}`;
  const arms=[-1,1].map(side=>{const x=100+side*37;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 150px`,`<ellipse cx="${x}" cy="151" rx="11" ry="21" transform="rotate(${side* -22} ${x} 151)" fill="var(--pet)" ${E}/><ellipse cx="${x}" cy="166" rx="9" ry="7" fill="${s.paw}"/>`)}).join('');
  const feet=[-1,1].map(side=>g(side<0?'p-foot-l':'p-foot-r',`${100+side*25}px 185px`,`<ellipse cx="${100+side*25}" cy="185" rx="19" ry="11" fill="var(--pet)" ${E}/><ellipse cx="${100+side*25}" cy="184" rx="9" ry="6" fill="${s.paw}"/>`)).join('');
- const cell={hamster:[0,0],cat:[-256,0],bunny:[-512,0],deer:[0,-256],fox:[-256,-256],bear:[-512,-256]}[sp];
+ const idx=ORDER.indexOf(sp);
+ const headCol=idx%4, headRow=Math.floor(idx/4);
+ const bodyIdx=8+idx, bodyCol=bodyIdx%4, bodyRow=Math.floor(bodyIdx/4);
+ const rasterFilter='';
+ const headRaster=`<svg x="0" y="-26" width="200" height="171.1" viewBox="0 0 128 146" preserveAspectRatio="none"><image href="assets/pets/pet-layers.webp" x="${-headCol*128}" y="${-headRow*146}" width="512" height="584" preserveAspectRatio="none" ${rasterFilter}/></svg>`;
+ const bodyRaster=`<svg x="0" y="125" width="200" height="82.03" viewBox="0 0 128 53" preserveAspectRatio="none"><image href="assets/pets/pet-layers.webp" x="${-bodyCol*128}" y="${-bodyRow*146}" width="512" height="584" preserveAspectRatio="none" ${rasterFilter}/></svg>`;
+ const hatMarkup=hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:'';
  return `<svg class="pet-svg m-${m}${o.mini?' mini':''}" data-sp="${sp}" data-mood="${m}" viewBox="0 -26 200 226" role="img" aria-label="${esc(o.label||s.title)}" style="--pet:${c.pet};--pet-light:${c.light};--edge:${c.edge};--cheek:${c.cheek}">
  <defs>
-  <linearGradient id="${id}fur" x1="0" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset=".32" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".28"/></linearGradient>
-  <linearGradient id="${id}body" x1="0" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset=".42" stop-color="var(--pet)"/><stop offset="1" stop-color="var(--edge)" stop-opacity=".42"/></linearGradient>
-  <linearGradient id="${id}belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="var(--pet-light)"/></linearGradient>
-  <clipPath id="${id}h"><path d="${s.head}"/></clipPath>
-  <filter id="${id}shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter>
+  <filter id="${id}softShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4"/></filter>
  </defs>
- <style>.pet-artwork{opacity:0;transition:opacity .18s ease}.pet-svg.pet-artwork-loaded .pet-artwork{opacity:1}.pet-svg.pet-artwork-loaded .pet-legacy{opacity:0;pointer-events:none}</style>
- <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".1"/>
+ <ellipse class="p-shadow" cx="100" cy="195" rx="56" ry="7" fill="#49343a" opacity=".12"/>
  <g class="p-root" style="transform-origin:100px 195px">
-  <g class="pet-legacy">${s.tail(lvl)}${s.wings?s.wings():''}${feet}
-   <g class="legacy-p-body"><g class="a-breathe">${body}<g class="fur-flecks" opacity=".58" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M64 151l-4 4m12-9l-3 4m67 5l4 4m-12-9l3 4M84 185l-2 3m34-3l2 3M92 143l-2 3m18-3l2 3M55 164l-3 3m93-3l3 3"/></g><g class="coat-strokes" fill="none" stroke="var(--edge)" stroke-width="1.5" stroke-linecap="round" opacity=".32"><path d="M62 161l-4 3m10 4l-4 3m74-10l4 3m-10 4l4 3M80 187l-3 3m43-3l3 3"/></g>${scarf}${arms}
-    <g class="legacy-p-face"><g class="p-ears">${lvl>=2?s.ears():''}</g>${head}<g class="p-facedyn">${face(sp,m)}</g>${s.extra||''}<g class="fur-tufts" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" opacity=".42"><path d="M53 91l-5 2m6 9l-5 2m103-13l5 2m-6 9l5 2"/></g></g>
-   </g></g>
-  </g>
+  ${s.tail(lvl)}${s.wings?s.wings():''}${feet}
   <g class="p-body" style="transform-origin:100px 175px">
-   ${cell?'<svg x="0" y="-14" width="200" height="200" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid meet"><image class="pet-artwork" href="assets/pets/pet-sheet.webp" x="'+cell[0]+'" y="'+cell[1]+'" width="768" height="512" preserveAspectRatio="none"/></svg>':''}
+   <g class="a-breathe">
+    ${bodyRaster}
+    ${scarf}
+    ${arms}
+   </g>
   </g>
-  <g class="p-face" style="transform-origin:100px 50px">${scarf}${hat?`<g class="p-hat" style="transform-origin:100px 50px">${hat}</g>`:''}</g>
+  <g class="p-face" style="transform-origin:100px 50px">
+   ${headRaster}
+   <g class="p-ears">${lvl>=2?s.ears():''}</g>
+   <g class="p-facedyn">${face(sp,m)}</g>
+   ${s.extra||''}
+   ${hatMarkup}
+  </g>
   <g class="p-prop"></g>
- </g><g class="p-fx"></g></svg>`;;
+ </g>
+ <g class="p-fx"></g>
+ </svg>`;
 }
 if(root.document&&!root.__toshaPetArtworkEvents){root.__toshaPetArtworkEvents=true;root.document.addEventListener('load',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork')){const s=t.closest('svg.pet-svg');if(s)s.classList.add('pet-artwork-loaded');}},true);root.document.addEventListener('error',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('pet-artwork'))t.style.display='none';},true);}
 root.ToshaPets={SPECIES:S,ORDER,svg,face};
