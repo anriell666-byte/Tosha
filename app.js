@@ -600,6 +600,7 @@
     const opts = o || {}, species = P.SPECIES[id], label = opts.label || (species && species.title) || 'Питомец';
     return `<img class="pet-raster${opts.mini ? ' mini-raster' : ''}" data-pet="${esc(id)}" src="assets/pets/${encodeURIComponent(id)}.png" alt="${esc(label)}" loading="eager" decoding="async" onerror="this.onerror=null;this.outerHTML=window.ToshaPets.svg(this.dataset.pet,'neutral',1)">`;
   };
+  const petSvgAnimated = (id, m, lvl, o) => P.svg(id, m, lvl, Object.assign({ colors: colorsOf(id) }, o || {}));
   const curSvg = () => $('#petBox .pet-svg');
   const phrasesFor = m => PHRASES[m].concat(m === 'neutral' || m === 'happy' ? S.custom.phrases : []);
   const moodAnim = m => m === 'sleepy' ? 'sleep' : m === 'hungry' ? 'hungry' : null;
@@ -797,7 +798,7 @@
     const key = [S.pet, sportSel, lvl, JSON.stringify(colorsOf(S.pet) || '')].join('|');
     if (key !== sportKey) {
       sportKey = key;
-      $('#sportStage').innerHTML = petSvg(S.pet, 'happy', lvl, { label: S.settings.petName });
+      $('#sportStage').innerHTML = petSvgAnimated(S.pet, 'happy', lvl, { label: S.settings.petName });
       playSport();
     }
     const d = AN && AN.LIB[sp.anim];
@@ -1159,7 +1160,7 @@
     WS.sp = WS.sp || S.pet;
     $('#wsSpecies').innerHTML = Object.keys(P.SPECIES).map(id => `<button type="button" class="chip ${id === WS.sp ? 'on' : ''}" data-act="wsSp" data-p="${id}">${esc(P.SPECIES[id].title)}</button>`).join('');
     $('#wsList').innerHTML = AN.GROUPS.map(g => `<div class="qhead" style="margin-top:10px">${g.title}</div><div class="chips">${AN.list().filter(a => a.group === g.id).map(a => `<button type="button" class="chip ${a.id === WS.anim ? 'on' : ''}" data-act="wsAnim" data-a="${a.id}">${a.emoji} ${esc(a.title)}</button>`).join('')}</div>`).join('');
-    $('#wsStage').innerHTML = petSvg(WS.sp, 'neutral', Math.max(2, C.level(S.xp)), { label: P.SPECIES[WS.sp].title });
+    $('#wsStage').innerHTML = petSvgAnimated(WS.sp, 'neutral', Math.max(2, C.level(S.xp)), { label: P.SPECIES[WS.sp].title });
     const d = AN.LIB[WS.anim]; $('#wsDesc').textContent = d ? d.title + ': ' + d.desc : '';
     fillColors(); playWs();
   }
