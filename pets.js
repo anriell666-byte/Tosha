@@ -88,7 +88,13 @@ function muzzle(sp){
  };
  return shapes[sp]||shapes.hamster;
 }
-function face(sp,m){const s=S[sp]||S.hamster;return `<g class="a-eyes">${eyes(s,m)}</g>${muzzle(sp)}${nose(sp)}${mouth(m)}<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".65"/>`}
+function face(sp,m){
+ const s=S[sp]||S.hamster;
+ const whiskers=sp==="cat" ? '<g fill="none" stroke="#765d5d" stroke-width="1.7" stroke-linecap="round" opacity=".72"><path d="M72 119L43 113M73 124L42 126M128 119L157 113M127 124L158 126"/></g>' : sp==="hamster" ? '<g fill="none" stroke="#9a7c7d" stroke-width="1.35" stroke-linecap="round" opacity=".5"><path d="M76 122l-17-4m17 8l-18 3m66-7l17-4m-17 8l18 3"/></g>' : "";
+ const freckles=sp==="deer" ? '<g fill="#fff8ed" opacity=".9"><circle cx="82" cy="105" r="1.8"/><circle cx="89" cy="101" r="1.4"/><circle cx="118" cy="101" r="1.4"/><circle cx="125" cy="105" r="1.8"/></g>' : sp==="fox" ? '<g fill="#d96d4c" opacity=".6"><circle cx="66" cy="108" r="1.5"/><circle cx="72" cy="112" r="1.2"/><circle cx="134" cy="108" r="1.5"/><circle cx="128" cy="112" r="1.2"/></g>' : sp==="bear" ? '<g fill="#c58e6c" opacity=".7"><circle cx="79" cy="122" r="1.4"/><circle cx="121" cy="122" r="1.4"/></g>' : "";
+ const brows=sp==="dragon" ? '<path d="M65 66q9-5 18 0m34 0q9-5 18 0" fill="none" stroke="#5d8f68" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>' : '<path d="M67 65q8-4 15 0m36 0q8-4 15 0" fill="none" stroke="var(--edge)" stroke-width="1.8" stroke-linecap="round" opacity=".35"/>';
+ return brows+'<g class="a-eyes">' + eyes(s,m) + '</g>' + muzzle(sp) + whiskers + freckles + nose(sp) + '<path d="M97 111q3 3 6 0" fill="none" stroke="#fff" stroke-width="1.2" opacity=".65"/>' + mouth(m) + '<ellipse cx="55" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".62"/><ellipse cx="145" cy="111" rx="12" ry="7" fill="var(--cheek)" opacity=".62"/>';
+}
 
 function shade(hex,f){const v=parseInt(hex.slice(1),16),a=[v>>16&255,v>>8&255,v&255].map(x=>Math.max(0,Math.min(255,Math.round(x*(1+f)))));return '#'+a.map(x=>x.toString(16).padStart(2,'0')).join('');}
 const BODY_SHAPES={
@@ -131,13 +137,25 @@ const HEAD_SILHOUETTES={
  bear:'M100 29Q130 27 149 49Q169 72 160 108l-8 2q3 12-7 19l-7-6q-3 14-16 18l-4-8q-8 10-18 8q-10 2-18-8l-4 8q-13-4-16-18l-7 6q-10-7-7-19l-8-2Q31 72 51 49Q70 27 100 29Z'
 };
 
+function coatDetails(sp){
+ const d={
+  hamster:'<path d="M79 139q5 7 10 2m22-2q-5 7-10 2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>',
+  cat:'<path d="M84 132l-5 8 10-2 4 9 7-8 7 8 4-9 10 2-5-8" fill="#fffafa" opacity=".9"/>',
+  bunny:'<path d="M82 134q-7 6-3 12l8-3 4 9 9-8 9 8 4-9 8 3q4-6-3-12" fill="#fff5f1" opacity=".9"/>',
+  deer:'<g fill="#fff8ee"><circle cx="77" cy="151" r="2.7"/><circle cx="88" cy="143" r="2.2"/><circle cx="123" cy="143" r="2.2"/><circle cx="134" cy="151" r="2.7"/><circle cx="82" cy="166" r="2"/><circle cx="118" cy="166" r="2"/></g>',
+  dragon:'<g fill="none" stroke="#8bc99a" stroke-width="2" opacity=".85"><path d="M83 145l5 5 5-5m4 4l5 5 5-5m4-4l5 5 5-5"/></g>',
+  fox:'<path d="M77 133q-8 9-2 17l10-4 5 12 10-9 10 9 5-12 10 4q6-8-2-17" fill="#fff3e8" opacity=".95"/>',
+  bear:'<path d="M76 139q-7 7-2 14l9-3 5 10 12-9 12 9 5-10 9 3q5-7-2-14" fill="#f5dfbd" opacity=".95"/>'
+ };
+ return d[sp]||"";
+}
 function legacySvg(sp,m,lvl,o){
  o=o||{};sp=S[sp]?sp:'hamster';const s=S[sp],id='cute'+(++uid),c=o.colors&&/^#[\da-f]{6}$/i.test(o.colors.pet||'')&&/^#[\da-f]{6}$/i.test(o.colors.light||'')?{...s.c,pet:o.colors.pet,light:o.colors.light,edge:shade(o.colors.pet,-.22)}:s.c;
  const k=s.k||1,kt=`translate(100 0) scale(${k} 1) translate(-100 0)`;
  const head=`<path d="${HEAD_SILHOUETTES[sp]}" fill="url(#${id}fur)" stroke="var(--edge)" stroke-width="3.4" stroke-linejoin="round"/><path d="${HEAD_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><path d="M49 78Q56 43 88 37Q117 29 143 54" fill="none" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/><g clip-path="url(#${id}h)">${s.marks||''}</g><ellipse cx="55" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/><ellipse cx="145" cy="111" rx="13" ry="8" fill="var(--cheek)" opacity=".55"/>`;
  const scarf=lvl>=3?`<g class="p-scarf"><path d="M62 137Q100 157 138 137L132 151Q100 172 68 151Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/><path d="M125 151l15 5-7 27-14-9Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/></g>`:'';
  const hat=lvl>=8?'<path d="M66 48L72 22L88 39L100 12L112 39L128 22L134 48Z" fill="#ffd15a" stroke="#c9973a" stroke-width="3"/>':lvl>=5?'<path d="M63 57Q100 -5 137 57Z" fill="#65b6a5" stroke="#478d81" stroke-width="3"/><rect x="57" y="53" width="86" height="10" rx="5" fill="#478d81"/>':'';
- const body=`<path d="${BODY_SHAPES[sp]}" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2" stroke-linejoin="round"/><path d="${BODY_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><ellipse cx="100" cy="164" rx="${sp==='bear'?27:sp==='deer'?22:25}" ry="${sp==='deer'?24:26}" fill="url(#${id}belly)"/><path d="M78 145Q86 139 92 143M108 143Q116 139 122 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}<g class="p-fur-body" fill="none" stroke="var(--edge)" stroke-width="1.65" stroke-linecap="round" opacity=".48"><path d="M65 145q-5 7-2 13m7-16q-4 7-2 12m66-9q5 7 2 13m-7-16q4 7 2 12M73 178q-2 7 3 11m51-11q2 7-3 11M84 188q5 4 10 2m22-2q-5 4-10 2"/><path d="M77 151l-5 4m51-4l5 4M82 161l-4 4m44-4l4 4M91 184l-2 5m20-5l2 5"/></g>`;
+ const body=`<path d="${BODY_SHAPES[sp]}" fill="url(#${id}body)" stroke="var(--edge)" stroke-width="3.2" stroke-linejoin="round"/><path d="${BODY_FUR[sp]}" fill="none" stroke="var(--edge)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><ellipse cx="100" cy="164" rx="${sp==='bear'?27:sp==='deer'?22:25}" ry="${sp==='deer'?24:26}" fill="url(#${id}belly)"/><path d="M78 145Q86 139 92 143M108 143Q116 139 122 145" fill="none" stroke="#fff" stroke-width="3" opacity=".32" stroke-linecap="round"/>${s.body||''}${coatDetails(sp)}<g class="p-fur-body" fill="none" stroke="var(--edge)" stroke-width="1.65" stroke-linecap="round" opacity=".48"><path d="M65 145q-5 7-2 13m7-16q-4 7-2 12m66-9q5 7 2 13m-7-16q4 7 2 12M73 178q-2 7 3 11m51-11q2 7-3 11M84 188q5 4 10 2m22-2q-5 4-10 2"/><path d="M77 151l-5 4m51-4l5 4M82 161l-4 4m44-4l4 4M91 184l-2 5m20-5l2 5"/></g>`;
  const arms=[-1,1].map(side=>{const x=100+side*25,hand=100+side*16;return g(side<0?'a-arm-l':'a-arm-r',`${x}px 145px`,`<path d="M${x} 137Q${x+side*9} 143 ${hand} 153Q${hand+side*2} 162 ${hand-side*2} 166Q${hand-side*10} 166 ${hand-side*12} 157Q${x-side*4} 150 ${x-side*7} 145Z" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.7" stroke-linejoin="round"/><ellipse cx="${hand-side*2}" cy="162" rx="8" ry="7" fill="${s.paw}" stroke="var(--edge)" stroke-width="1.5"/><path d="M${hand-side*5} 161l-2 3m6-4l-1 3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>`)}).join('');
  const feet=[-1,1].map(side=>{const x=100+side*23;return g(side<0?'p-foot-l':'p-foot-r',`${x}px 181px`,`<path d="M${x-8} 160Q${x-13} 174 ${x-12} 184Q${x-11} 194 ${x} 194Q${x+11} 194 ${x+12} 184Q${x+13} 174 ${x+8} 160Z" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.8"/><ellipse cx="${x}" cy="187" rx="16" ry="8.5" fill="var(--pet)" stroke="var(--edge)" stroke-width="2.4"/><path d="M${x-5} 187q-2 3 0 4m5-4q-2 3 0 4m5-4q-2 3 0 4" fill="none" stroke="${s.paw}" stroke-width="2" stroke-linecap="round"/>`)}).join('');
 
