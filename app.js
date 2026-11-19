@@ -596,7 +596,10 @@
   const P = window.ToshaPets, AN = window.ToshaAnim;
   let petKey = '', pendingReact = null, levelUp = false, reactT = null, autoAnim = null, tapN = -1;
   const colorsOf = id => (S.custom.colors || {})[id];
-  const petSvg = (id, m, lvl, o) => P.svg(id, m, lvl, Object.assign({ colors: colorsOf(id) }, o || {}));
+  const petSvg = (id, m, lvl, o) => {
+    const opts = o || {}, species = P.SPECIES[id], label = opts.label || (species && species.title) || 'Питомец';
+    return `<img class="pet-raster${opts.mini ? ' mini-raster' : ''}" data-pet="${esc(id)}" src="assets/pets/${encodeURIComponent(id)}.png" alt="${esc(label)}" loading="eager" decoding="async" onerror="this.onerror=null;this.outerHTML=window.ToshaPets.svg(this.dataset.pet,'neutral',1)">`;
+  };
   const curSvg = () => $('#petBox .pet-svg');
   const phrasesFor = m => PHRASES[m].concat(m === 'neutral' || m === 'happy' ? S.custom.phrases : []);
   const moodAnim = m => m === 'sleepy' ? 'sleep' : m === 'hungry' ? 'hungry' : null;
