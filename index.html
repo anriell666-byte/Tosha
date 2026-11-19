@@ -102,14 +102,14 @@ p{margin:0 0 8px}
 .a-eyes{animation:blink 5.5s infinite;transform-box:fill-box;transform-origin:center}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
 .m-sleepy .a-eyes,.m-happy .a-eyes{animation:none}
-.a-breathe{animation:breathe 4s ease-in-out infinite}
+.a-breathe{animation:breathe 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
 @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.02)}}
 .m-sleepy .a-breathe{animation-duration:6s}.m-hungry .a-breathe{animation-duration:1.8s}
-.a-tail{animation:wag 2.8s ease-in-out infinite}
+.a-tail{animation:wag 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:70% 80%}
 @keyframes wag{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(9deg)}}
 .m-excited .a-tail{animation-duration:.55s}.m-sleepy .a-tail{animation-duration:7s}
-.a-ear-l{animation:twitchL 7s ease-in-out infinite}
-.a-ear-r{animation:twitchR 8.5s ease-in-out infinite 1.5s}
+.a-ear-l{animation:twitchL 7s ease-in-out infinite;transform-box:fill-box;transform-origin:85% 90%}
+.a-ear-r{animation:twitchR 8.5s ease-in-out infinite 1.5s;transform-box:fill-box;transform-origin:15% 90%}
 @keyframes twitchL{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-8deg)}94%{transform:rotate(2deg)}}
 @keyframes twitchR{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(8deg)}94%{transform:rotate(-2deg)}}
 .a-sway{animation:sway 3.2s ease-in-out infinite alternate}
