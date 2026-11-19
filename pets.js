@@ -173,7 +173,7 @@ function legacySvg(sp,m,lvl,o){
   </g>
   ${feet}
   <g class="p-face" style="transform-origin:100px 50px">
-   <g class="p-ears">${s.ears()}</g>
+   <g class="p-ears">${lvl>=2?s.ears():''}</g>
    ${head}
    <g class="p-fur-head" fill="none" stroke="var(--edge)" stroke-width="1.8" stroke-linecap="round" opacity=".52"><path d="M49 76q-5 4-6 10m12-20q-5 4-6 10m102-1q5 4 6 10m-12-20q5 4 6 10M64 52l-4 7m76-7l4 7M78 39l-2 7m48-7l2 7M91 33l-1 6m20-6l1 6"/></g>
    <g class="p-facedyn">${face(sp,m)}</g>
